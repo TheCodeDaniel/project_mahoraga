@@ -45,8 +45,13 @@ def run_pipeline(claim: str, ai_response: str, user_flagged: bool = False) -> di
             resolution = "no_update_needed"
 
         # Step 5 — Adapter
-        updated = AdapterManager().update(critic_result)
-        print(f"[ADAPTER] update applied: {updated}")
+        adapter_result = AdapterManager().update(critic_result)
+        if adapter_result["status"] == "updated":
+            print("[ADAPTER] Entry written to knowledge base")
+            correction_text = adapter_result["entry"]["correction"]
+            print(f"[ADAPTER] Correction: {correction_text[:200]}")
+        else:
+            print("[ADAPTER] Skipped — no correction to store")
 
         # Step 6 — Close case
         hook.close_case(case_id, resolution)
@@ -75,5 +80,11 @@ if __name__ == "__main__":
     run_pipeline(
         claim="Python was created in 1991 by Guido van Rossum",
         ai_response="Python was definitely created in 1991 by Guido van Rossum",
+        user_flagged=False,
+    )
+
+    run_pipeline(
+        claim="The Dart programming language does not support null safety",
+        ai_response="I think Dart does not support null safety",
         user_flagged=False,
     )

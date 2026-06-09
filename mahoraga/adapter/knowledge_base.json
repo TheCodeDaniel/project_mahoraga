@@ -1,0 +1,23 @@
+[
+  {
+    "claim": "The Dart programming language does not support null safety",
+    "correction": "Aug 22, 2023 ... The current Dart SDK version is 3.1.0. Because tag_along depends on dependencies any which doesn't support null safety, version solving failed.",
+    "sources": [
+      {
+        "url": "https://stackoverflow.com/questions/76952076/does-not-support-null-safety-version-solving-failed",
+        "snippet": "Aug 22, 2023 ... The current Dart SDK version is 3.1.0. Because tag_along depends on dependencies any which doesn't support null safety, version solving failed."
+      },
+      {
+        "url": "https://github.com/dart-community/migrate-to-null-safety/blob/main/docs/migrate.md",
+        "snippet": "Dart 2.19 is the final release that supports null-safety migration, including the dart migrate tool. To migrate your package to null safety, use the Dart 2.19.6 ..."
+      },
+      {
+        "url": "https://www.reddit.com/r/FlutterDev/comments/10huk25/what_would_happen_in_march_if_we_dont_use_the/",
+        "snippet": "Jan 21, 2023 ... In March, dart 3 will get an update that will no longer allow code that doesn't use the null safety feature. What would Google play store and Apple store do?"
+      }
+    ],
+    "confidence": 0.62,
+    "timestamp": "2026-06-09T21:27:07.537982+00:00",
+    "applied": true
+  }
+]

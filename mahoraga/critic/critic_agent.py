@@ -1,6 +1,11 @@
 import re
 from urllib.parse import quote_plus
 
+_NEGATION_RE = re.compile(
+    r"\b(not|no\b|never|doesn't|does not|don't|cannot|can't|isn't|is not|won't|wouldn't)\b",
+    re.IGNORECASE,
+)
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -20,6 +25,11 @@ _BROWSER_HEADERS = {
 
 def _claim_words(claim: str) -> set[str]:
     return {w.lower() for w in re.findall(r"\w+", claim)}
+
+
+def _positive_claim_words(claim: str) -> set[str]:
+    """Claim words with negation particles stripped, for positive-form matching."""
+    return _claim_words(_NEGATION_RE.sub(" ", claim))
 
 
 def _relevance(claim_words: set[str], text: str) -> float:
@@ -121,6 +131,18 @@ class CriticAgent:
         correction: str | None = None
         if verdict is False and scored:
             correction = scored[0]["snippet"]
+
+        # Negation override: if the claim negates something and sources
+        # strongly confirm the positive form, the claim is false.
+        if _NEGATION_RE.search(claim) and sources:
+            pos_words = _positive_claim_words(claim)
+            pos_scored = sorted(sources, key=lambda s: _relevance(pos_words, s["snippet"]), reverse=True)
+            pos_top3 = pos_scored[:3]
+            pos_conf = sum(_relevance(pos_words, s["snippet"]) for s in pos_top3) / len(pos_top3)
+            if pos_conf >= 0.5:
+                verdict = False
+                confidence = round(pos_conf, 2)
+                correction = pos_scored[0]["snippet"]
 
         clean_sources = [{"url": s["url"], "snippet": s["snippet"]} for s in scored]
 
