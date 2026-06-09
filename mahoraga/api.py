@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional
+from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 from mahoraga.adapter.adapter_manager import AdapterManager
 from mahoraga.critic.critic_agent import CriticAgent
@@ -13,11 +14,11 @@ from mahoraga.trigger.trigger_evaluator import TriggerEvaluator
 
 app = FastAPI(title="Project Mahoraga", version="0.1.0")
 
-# Single shared instance so cases persist across requests
 _hook = MaestroHook()
+_DASHBOARD = Path(__file__).parent / "dashboard" / "index.html"
 
 
-# ---------- request / response models ----------
+# ---------- request models ----------
 
 class EvaluateRequest(BaseModel):
     claim: str
@@ -34,7 +35,15 @@ class CloseCaseRequest(BaseModel):
     resolution: str
 
 
-# ---------- endpoints ----------
+# ---------- dashboard ----------
+
+@app.get("/")
+@app.get("/dashboard")
+def dashboard():
+    return FileResponse(_DASHBOARD)
+
+
+# ---------- pipeline ----------
 
 @app.get("/health")
 def health():
@@ -61,26 +70,34 @@ def evaluate(req: EvaluateRequest):
         "confidence": critic_result["confidence"],
         "correction": critic_result.get("correction"),
         "sources": critic_result.get("sources", [])[:3],
+        "nli_scores": critic_result.get("nli_scores", [])[:5],
         "triggered": trigger["triggered"],
         "reason": trigger.get("reason"),
         "adapter": adapter_result,
     }
 
 
+# ---------- cases ----------
+
 @app.post("/case/open")
 def open_case(req: OpenCaseRequest):
-    case = _hook.open_case(req.trigger_data)
-    return case
+    return _hook.open_case(req.trigger_data)
 
 
 @app.post("/case/close")
 def close_case(req: CloseCaseRequest):
     try:
-        case = _hook.close_case(req.case_id, req.resolution)
+        return _hook.close_case(req.case_id, req.resolution)
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Case '{req.case_id}' not found")
-    return case
 
+
+@app.get("/cases")
+def cases():
+    return list(_hook._cases.values())
+
+
+# ---------- knowledge ----------
 
 @app.get("/knowledge")
 def knowledge():

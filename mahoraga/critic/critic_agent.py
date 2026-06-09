@@ -1,14 +1,9 @@
-import re
-from urllib.parse import quote_plus
+from __future__ import annotations
 
-_NEGATION_RE = re.compile(
-    r"\b(not|no\b|never|doesn't|does not|don't|cannot|can't|isn't|is not|won't|wouldn't)\b",
-    re.IGNORECASE,
-)
+from urllib.parse import quote_plus
 
 import requests
 from bs4 import BeautifulSoup
-
 
 _DDG_API_URL = "https://api.duckduckgo.com/?q={query}&format=json&no_html=1&skip_disambig=1"
 _DDG_HTML_URL = "https://html.duckduckgo.com/html/?q={query}"
@@ -22,30 +17,26 @@ _BROWSER_HEADERS = {
     "Accept-Language": "en-US,en;q=0.5",
 }
 
-
-def _claim_words(claim: str) -> set[str]:
-    return {w.lower() for w in re.findall(r"\w+", claim)}
-
-
-def _positive_claim_words(claim: str) -> set[str]:
-    """Claim words with negation particles stripped, for positive-form matching."""
-    return _claim_words(_NEGATION_RE.sub(" ", claim))
+# Lazily loaded on first use — avoids slow import at startup
+_nli_pipeline = None
 
 
-def _relevance(claim_words: set[str], text: str) -> float:
-    if not text or not claim_words:
-        return 0.0
-    text_words = {w.lower() for w in re.findall(r"\w+", text)}
-    return len(claim_words & text_words) / len(claim_words)
+def _get_nli():
+    global _nli_pipeline
+    if _nli_pipeline is None:
+        from transformers import pipeline
+        _nli_pipeline = pipeline(
+            "zero-shot-classification",
+            model="cross-encoder/nli-deberta-v3-small",
+        )
+    return _nli_pipeline
 
 
 def _is_challenge_page(resp: requests.Response) -> bool:
-    """Return True if DuckDuckGo returned a bot-challenge page instead of results."""
     return resp.status_code == 202 or "anomaly.js" in resp.text
 
 
 def _ddg_api_sources(claim: str) -> list[dict]:
-    """Step 1: DuckDuckGo Instant Answer API."""
     sources: list[dict] = []
     try:
         url = _DDG_API_URL.format(query=quote_plus(claim))
@@ -53,12 +44,10 @@ def _ddg_api_sources(claim: str) -> list[dict]:
         if _is_challenge_page(resp):
             return sources
         data = resp.json()
-
         abstract = data.get("AbstractText", "").strip()
         abstract_url = data.get("AbstractURL", "").strip()
         if abstract:
             sources.append({"url": abstract_url, "snippet": abstract})
-
         for topic in data.get("RelatedTopics", [])[:4]:
             text = topic.get("Text", "").strip()
             first_url = topic.get("FirstURL", "").strip()
@@ -70,12 +59,10 @@ def _ddg_api_sources(claim: str) -> list[dict]:
 
 
 def _ddg_html_sources(claim: str) -> list[dict]:
-    """Step 2: DuckDuckGo HTML search, with ddgs fallback on bot-challenge."""
     sources: list[dict] = []
     try:
         url = _DDG_HTML_URL.format(query=quote_plus(claim))
         resp = requests.get(url, headers=_BROWSER_HEADERS, timeout=8)
-
         if not _is_challenge_page(resp):
             soup = BeautifulSoup(resp.text, "html.parser")
             for result in soup.select(".result")[:5]:
@@ -88,9 +75,7 @@ def _ddg_html_sources(claim: str) -> list[dict]:
             if sources:
                 return sources
 
-        # Fallback: ddgs library handles DDG session tokens transparently
-        from ddgs import DDGS  # lazy import — only needed when DDG blocks direct requests
-
+        from ddgs import DDGS
         for r in DDGS().text(claim, max_results=5):
             snippet = r.get("body", "").strip()
             href = r.get("href", "").strip()
@@ -101,55 +86,64 @@ def _ddg_html_sources(claim: str) -> list[dict]:
     return sources
 
 
+def _nli_score(claim: str, snippet: str) -> float:
+    """Return supports_score − contradicts_score for the (claim, snippet) pair."""
+    try:
+        nli = _get_nli()
+        result = nli(
+            snippet[:512],
+            candidate_labels=["supports this claim", "contradicts this claim", "unrelated"],
+        )
+        scores = dict(zip(result["labels"], result["scores"]))
+        return scores.get("supports this claim", 0.0) - scores.get("contradicts this claim", 0.0)
+    except Exception:
+        return 0.0
+
+
 class CriticAgent:
     def evaluate(self, claim: str) -> dict:
-        words = _claim_words(claim)
-
-        # Steps 1 & 2: gather sources
+        # Gather sources
         sources = _ddg_api_sources(claim) + _ddg_html_sources(claim)
+        top5 = sources[:5]
 
-        # Step 3: score each source by word-overlap relevance
-        scored = [
-            {**src, "_score": _relevance(words, src["snippet"])}
-            for src in sources
-        ]
-        scored.sort(key=lambda x: x["_score"], reverse=True)
+        # NLI score each source
+        nli_scored = []
+        for src in top5:
+            score = _nli_score(claim, src["snippet"])
+            nli_scored.append({**src, "nli_score": round(score, 4)})
 
-        # Step 4: confidence = average of top-3 scores
-        top3 = scored[:3]
-        confidence = round(sum(s["_score"] for s in top3) / len(top3), 2) if top3 else 0.0
+        # Sort descending by NLI score
+        nli_scored.sort(key=lambda x: x["nli_score"], reverse=True)
 
-        # Step 5: verdict
-        if confidence >= 0.6:
+        # Confidence = average of top-3 NLI scores, clamped [0, 1]
+        top3 = nli_scored[:3]
+        avg_score = sum(s["nli_score"] for s in top3) / len(top3) if top3 else 0.0
+        confidence = round(max(0.0, min(1.0, avg_score)), 2)
+
+        # Verdict thresholds
+        if avg_score >= 0.2:
             verdict: bool | None = True
-        elif confidence < 0.3:
+        elif avg_score <= -0.1:
             verdict = False
         else:
             verdict = None
 
-        # Step 6: correction
+        # Correction: snippet with the most negative NLI score
         correction: str | None = None
-        if verdict is False and scored:
-            correction = scored[0]["snippet"]
+        if verdict is False and nli_scored:
+            correction = min(nli_scored, key=lambda x: x["nli_score"])["snippet"]
 
-        # Negation override: if the claim negates something and sources
-        # strongly confirm the positive form, the claim is false.
-        if _NEGATION_RE.search(claim) and sources:
-            pos_words = _positive_claim_words(claim)
-            pos_scored = sorted(sources, key=lambda s: _relevance(pos_words, s["snippet"]), reverse=True)
-            pos_top3 = pos_scored[:3]
-            pos_conf = sum(_relevance(pos_words, s["snippet"]) for s in pos_top3) / len(pos_top3)
-            if pos_conf >= 0.5:
-                verdict = False
-                confidence = round(pos_conf, 2)
-                correction = pos_scored[0]["snippet"]
-
-        clean_sources = [{"url": s["url"], "snippet": s["snippet"]} for s in scored]
+        clean_sources = [{"url": s["url"], "snippet": s["snippet"]} for s in nli_scored]
+        nli_scores_out = [
+            {"url": s["url"], "snippet": s["snippet"], "nli_score": s["nli_score"]}
+            for s in nli_scored
+        ]
 
         return {
             "verdict": verdict,
             "confidence": confidence,
             "sources": clean_sources,
+            "nli_scores": nli_scores_out,
             "correction": correction,
             "claim": claim,
         }

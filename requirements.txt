@@ -4,6 +4,9 @@ ddgs
 fastapi
 uvicorn
 python-dotenv
+transformers
+torch
+sentence-transformers
 peft
 transformers
 torch
