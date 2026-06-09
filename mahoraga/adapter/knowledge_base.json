@@ -19,5 +19,26 @@
     "confidence": 0.62,
     "timestamp": "2026-06-09T21:27:07.537982+00:00",
     "applied": true
+  },
+  {
+    "claim": "1 + 1 is 10",
+    "correction": "This is an online scientific calculator with double-digit precision that supports both button click and keyboard type.",
+    "sources": [
+      {
+        "url": "www.calculator.net/scientific-calculator.html",
+        "snippet": "This is an online scientific calculator with double-digit precision that supports both button click and keyboard type."
+      },
+      {
+        "url": "www.mathway.com/Calculator/math-calculator",
+        "snippet": "Step 1 : Enter the expression you want to evaluate. The Math Calculator will evaluate your problem down to a final solution. You can also add, subtraction, multiply, and divide and complete any arithmetic you need. Step 2: Click the blue arrow to submit and see your result!"
+      },
+      {
+        "url": "www.calculatorsoup.com/calculators/math/basic.php",
+        "snippet": "Simple online calculator with memory functions similar to a basic handheld calculator. Free simple calculator for adding, subtracting, multiplying, dividing."
+      }
+    ],
+    "confidence": 0.22,
+    "timestamp": "2026-06-09T21:44:16.294084+00:00",
+    "applied": true
   }
 ]
