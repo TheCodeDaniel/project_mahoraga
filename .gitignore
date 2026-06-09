@@ -37,6 +37,9 @@ ENV/
 .venv/
 .env
 
+# VS Code (workspace settings committed, local overrides not)
+.vscode/settings.local.json
+
 # Environment files
 .env
 .env.*

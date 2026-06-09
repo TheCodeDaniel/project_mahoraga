@@ -1,4 +1,6 @@
 requests
+bs4
+ddgs
 python-dotenv
 peft
 transformers
