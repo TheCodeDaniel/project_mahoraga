@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+import sys
 from urllib.parse import quote_plus
 
 import requests
@@ -17,20 +19,12 @@ _BROWSER_HEADERS = {
     "Accept-Language": "en-US,en;q=0.5",
 }
 
-# Lazily loaded on first use — avoids slow import at startup
 _nli_pipeline = None
 
 
-def _get_nli():
-    global _nli_pipeline
-    if _nli_pipeline is None:
-        from transformers import pipeline
-        _nli_pipeline = pipeline(
-            "zero-shot-classification",
-            model="cross-encoder/nli-deberta-v3-small",
-        )
-    return _nli_pipeline
-
+# ─────────────────────────────────────────────────────────────
+# Source collection
+# ─────────────────────────────────────────────────────────────
 
 def _is_challenge_page(resp: requests.Response) -> bool:
     return resp.status_code == 202 or "anomaly.js" in resp.text
@@ -86,8 +80,24 @@ def _ddg_html_sources(claim: str) -> list[dict]:
     return sources
 
 
-def _nli_score(claim: str, snippet: str) -> float:
-    """Return supports_score − contradicts_score for the (claim, snippet) pair."""
+# ─────────────────────────────────────────────────────────────
+# Stage 1 — NLI fast gate
+# ─────────────────────────────────────────────────────────────
+
+def _get_nli():
+    global _nli_pipeline
+    if _nli_pipeline is None:
+        from transformers import pipeline
+        _nli_pipeline = pipeline(
+            "zero-shot-classification",
+            model="cross-encoder/nli-deberta-v3-small",
+            token=False,  # bypass any stale cached HF credentials
+        )
+    return _nli_pipeline
+
+
+def _nli_raw_probs(claim: str, snippet: str) -> tuple[float, float]:
+    """Return (entail_prob, contra_prob) for the (claim, snippet) pair."""
     try:
         nli = _get_nli()
         result = nli(
@@ -95,10 +105,119 @@ def _nli_score(claim: str, snippet: str) -> float:
             candidate_labels=["supports this claim", "contradicts this claim", "unrelated"],
         )
         scores = dict(zip(result["labels"], result["scores"]))
-        return scores.get("supports this claim", 0.0) - scores.get("contradicts this claim", 0.0)
+        return (
+            scores.get("supports this claim", 0.0),
+            scores.get("contradicts this claim", 0.0),
+        )
     except Exception:
-        return 0.0
+        return (0.0, 0.0)
 
+
+# ─────────────────────────────────────────────────────────────
+# Stage 2 — Groq LLM judge
+# ─────────────────────────────────────────────────────────────
+
+def _claim_words(claim: str) -> set[str]:
+    return {w.lower() for w in re.findall(r"\w+", claim)}
+
+
+def _word_overlap(claim_words: set[str], text: str) -> float:
+    if not text or not claim_words:
+        return 0.0
+    text_words = {w.lower() for w in re.findall(r"\w+", text)}
+    return len(claim_words & text_words) / len(claim_words)
+
+
+def _groq_judge(
+    claim: str,
+    top5: list[dict],
+    nli_results: list[dict],
+) -> tuple[bool | None, float, str | None]:
+    """Call Groq LLM and return (verdict, confidence, correction)."""
+    import os
+    from dotenv import load_dotenv
+    from groq import Groq
+
+    load_dotenv()
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY not set")
+
+    client = Groq(api_key=api_key)
+
+    evidence = "\n".join(
+        f"{i + 1}. {s['snippet'][:300]}"
+        for i, s in enumerate(top5)
+    )
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a precise fact-checking assistant. You will be given a claim and up to 5 "
+                    "web source snippets. Your job is to determine if the claim is factually correct "
+                    "based on the evidence. Respond with EXACTLY one word: SUPPORTED, CONTRADICTED, or INSUFFICIENT."
+                ),
+            },
+            {
+                "role": "user",
+                "content": f"CLAIM: {claim}\n\nEVIDENCE:\n{evidence}\n\nVerdict:",
+            },
+        ],
+        max_tokens=10,
+        temperature=0,
+    )
+
+    word = response.choices[0].message.content.strip().upper()
+
+    cw = _claim_words(claim)
+    overlaps = [_word_overlap(cw, s["snippet"]) for s in top5[:3]]
+    avg_overlap = sum(overlaps) / len(overlaps) if overlaps else 0.0
+
+    if word == "SUPPORTED":
+        verdict: bool | None = True
+        confidence = round((0.75 + avg_overlap) / 2, 2)
+        correction = None
+    elif word == "CONTRADICTED":
+        verdict = False
+        confidence = round((0.75 + avg_overlap) / 2, 2)
+        most_contra = min(nli_results, key=lambda x: x["nli_score"]) if nli_results else None
+        correction = most_contra["snippet"] if most_contra else (top5[0]["snippet"] if top5 else None)
+    else:
+        verdict = None
+        confidence = 0.4
+        correction = None
+
+    return verdict, confidence, correction
+
+
+def _overlap_fallback(
+    claim: str,
+    sources: list[dict],
+) -> tuple[bool | None, float, str | None]:
+    """Word-overlap scoring when Groq is unavailable."""
+    cw = _claim_words(claim)
+    scored = sorted(sources, key=lambda s: _word_overlap(cw, s["snippet"]), reverse=True)
+    top3 = scored[:3]
+    avg = sum(_word_overlap(cw, s["snippet"]) for s in top3) / len(top3) if top3 else 0.0
+    confidence = round(min(1.0, avg), 2)
+
+    if confidence >= 0.6:
+        verdict: bool | None = True
+    elif confidence < 0.3:
+        verdict = False
+    else:
+        verdict = None
+
+    correction = scored[0]["snippet"] if verdict is False and scored else None
+    return verdict, confidence, correction
+
+
+# ─────────────────────────────────────────────────────────────
+# CriticAgent
+# ─────────────────────────────────────────────────────────────
 
 class CriticAgent:
     def evaluate(self, claim: str) -> dict:
@@ -106,46 +225,71 @@ class CriticAgent:
         sources = _ddg_api_sources(claim) + _ddg_html_sources(claim)
         top5 = sources[:5]
 
-        # NLI score each source
-        nli_scored = []
+        # ── Stage 1: NLI fast gate ────────────────────────────
+        nli_results: list[dict] = []
         for src in top5:
-            score = _nli_score(claim, src["snippet"])
-            nli_scored.append({**src, "nli_score": round(score, 4)})
+            entail, contra = _nli_raw_probs(claim, src["snippet"])
+            nli_results.append({
+                **src,
+                "entail_prob": entail,
+                "contra_prob": contra,
+                "nli_score": round(entail - contra, 4),
+            })
 
-        # Sort descending by NLI score
-        nli_scored.sort(key=lambda x: x["nli_score"], reverse=True)
+        nli_results.sort(key=lambda x: x["nli_score"], reverse=True)
 
-        # Confidence = average of top-3 NLI scores, clamped [0, 1]
-        top3 = nli_scored[:3]
-        avg_score = sum(s["nli_score"] for s in top3) / len(top3) if top3 else 0.0
-        confidence = round(max(0.0, min(1.0, avg_score)), 2)
-
-        # Verdict thresholds
-        if avg_score >= 0.2:
-            verdict: bool | None = True
-        elif avg_score <= -0.1:
-            verdict = False
-        else:
-            verdict = None
-
-        # Correction: snippet with the most negative NLI score
-        correction: str | None = None
-        if verdict is False and nli_scored:
-            correction = min(nli_scored, key=lambda x: x["nli_score"])["snippet"]
-
-        clean_sources = [{"url": s["url"], "snippet": s["snippet"]} for s in nli_scored]
+        clean_sources = [{"url": s["url"], "snippet": s["snippet"]} for s in nli_results]
         nli_scores_out = [
             {"url": s["url"], "snippet": s["snippet"], "nli_score": s["nli_score"]}
-            for s in nli_scored
+            for s in nli_results
         ]
 
+        if nli_results:
+            best_entail = max(nli_results, key=lambda x: x["entail_prob"])
+            best_contra = max(nli_results, key=lambda x: x["contra_prob"])
+
+            if best_entail["entail_prob"] >= 0.90:
+                return {
+                    "claim": claim,
+                    "verdict": True,
+                    "confidence": round(best_entail["entail_prob"], 2),
+                    "correction": None,
+                    "sources": clean_sources,
+                    "nli_scores": nli_scores_out,
+                    "scoring_method": "nli_fast",
+                    "stage": 1,
+                }
+
+            if best_contra["contra_prob"] >= 0.90:
+                return {
+                    "claim": claim,
+                    "verdict": False,
+                    "confidence": round(best_contra["contra_prob"], 2),
+                    "correction": best_contra["snippet"],
+                    "sources": clean_sources,
+                    "nli_scores": nli_scores_out,
+                    "scoring_method": "nli_fast",
+                    "stage": 1,
+                }
+
+        # ── Stage 2: Groq LLM judge ───────────────────────────
+        try:
+            verdict, confidence, correction = _groq_judge(claim, top5, nli_results)
+            scoring_method = "groq_llm"
+        except Exception as exc:
+            print(f"[CRITIC] Groq unavailable ({exc}), using overlap fallback", file=sys.stderr)
+            verdict, confidence, correction = _overlap_fallback(claim, nli_results)
+            scoring_method = "fallback_overlap"
+
         return {
+            "claim": claim,
             "verdict": verdict,
             "confidence": confidence,
+            "correction": correction,
             "sources": clean_sources,
             "nli_scores": nli_scores_out,
-            "correction": correction,
-            "claim": claim,
+            "scoring_method": scoring_method,
+            "stage": 2,
         }
 
 
@@ -153,11 +297,9 @@ if __name__ == "__main__":
     import json
 
     agent = CriticAgent()
-    claims = [
-        "The flutter_gemma package requires iOS 14 or higher",
-        "Python was created by Guido van Rossum in 1991",
-    ]
-    for c in claims:
+    for c in [
+        "Python was created by Guido van Rossum",
+        "The earth is flat",
+    ]:
         print(f"\nClaim: {c}")
-        result = agent.evaluate(c)
-        print(json.dumps(result, indent=2))
+        print(json.dumps(agent.evaluate(c), indent=2))

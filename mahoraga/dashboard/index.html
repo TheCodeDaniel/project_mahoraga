@@ -484,6 +484,10 @@
             <div class="stat-label">Reason</div>
             <div id="stat-reason" style="font-size:13px; color:#444; margin-top:6px">—</div>
           </div>
+          <div class="stat-card">
+            <div class="stat-label">Scoring Method</div>
+            <div id="stat-scoring" class="mt-4">—</div>
+          </div>
         </div>
 
         <div id="correction-section" class="card hidden">
@@ -695,6 +699,15 @@ function renderResults(data) {
     : '<span class="badge badge-neutral">No</span>';
 
   document.getElementById('stat-reason').textContent = data.reason || '—';
+
+  const scoringMeta = {
+    'nli_fast':         ['⚡ NLI Fast',  'badge-success'],
+    'groq_llm':         ['🤖 Groq LLM',  'badge-info'],
+    'fallback_overlap': ['↩ Fallback',   'badge-neutral'],
+  };
+  const [smLabel, smCls] = scoringMeta[data.scoring_method] || ['—', 'badge-neutral'];
+  document.getElementById('stat-scoring').innerHTML =
+    `<span class="badge ${smCls}">${smLabel}</span>`;
 
   const corrSection = document.getElementById('correction-section');
   if (data.correction) {

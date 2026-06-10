@@ -71,6 +71,8 @@ def evaluate(req: EvaluateRequest):
         "correction": critic_result.get("correction"),
         "sources": critic_result.get("sources", [])[:3],
         "nli_scores": critic_result.get("nli_scores", [])[:5],
+        "scoring_method": critic_result.get("scoring_method"),
+        "stage": critic_result.get("stage"),
         "triggered": trigger["triggered"],
         "reason": trigger.get("reason"),
         "adapter": adapter_result,
