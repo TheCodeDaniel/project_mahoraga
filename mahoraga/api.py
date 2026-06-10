@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import uvicorn
+from dotenv import load_dotenv, set_key, unset_key
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -12,10 +14,13 @@ from mahoraga.critic.critic_agent import CriticAgent
 from mahoraga.orchestrator.maestro_hook import MaestroHook
 from mahoraga.trigger.trigger_evaluator import TriggerEvaluator
 
+load_dotenv()  # pick up any existing .env on startup
+
 app = FastAPI(title="Project Mahoraga", version="0.1.0")
 
 _hook = MaestroHook()
 _DASHBOARD = Path(__file__).parent / "dashboard" / "index.html"
+_ENV_PATH   = Path(__file__).parent.parent / ".env"
 
 
 # ---------- request models ----------
@@ -35,12 +40,36 @@ class CloseCaseRequest(BaseModel):
     resolution: str
 
 
+class SettingsRequest(BaseModel):
+    groq_api_key: str
+
+
 # ---------- dashboard ----------
 
 @app.get("/")
 @app.get("/dashboard")
 def dashboard():
     return FileResponse(_DASHBOARD)
+
+
+# ---------- settings ----------
+
+@app.get("/settings")
+def get_settings():
+    return {"groq_key_set": bool(os.getenv("GROQ_API_KEY"))}
+
+
+@app.post("/settings")
+def save_settings(req: SettingsRequest):
+    key = req.groq_api_key.strip()
+    env_file = str(_ENV_PATH)
+    if key:
+        set_key(env_file, "GROQ_API_KEY", key)
+        os.environ["GROQ_API_KEY"] = key          # hot-reload — no restart needed
+    else:
+        unset_key(env_file, "GROQ_API_KEY")
+        os.environ.pop("GROQ_API_KEY", None)
+    return {"status": "ok", "groq_key_set": bool(key)}
 
 
 # ---------- pipeline ----------

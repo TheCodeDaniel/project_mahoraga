@@ -138,7 +138,7 @@ def _groq_judge(
     from dotenv import load_dotenv
     from groq import Groq
 
-    load_dotenv()
+    load_dotenv(override=True)  # pick up keys saved via /settings without restart
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY not set")
