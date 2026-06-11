@@ -61,5 +61,68 @@
     "confidence": 0.75,
     "timestamp": "2026-06-10T14:38:36.155433+00:00",
     "applied": true
+  },
+  {
+    "claim": "dart is not object oriented",
+    "correction": "It mentions that dart is a 100% pure object oriented programming language. Event primitive types, like int and double, are objects and are passed as a",
+    "sources": [
+      {
+        "url": "https://stackoverflow.com/questions/76488263/is-dart-really-100-pure-object-oriented-programming-language",
+        "snippet": "It mentions that dart is a 100% pure object oriented programming language. Event primitive types, like int and double, are objects and are passed as a"
+      },
+      {
+        "url": "https://spin.atomicobject.com/dart-features",
+        "snippet": "Dart is object-oriented, but it provides a lot of features from ... Unfortunately, the Dart compiler does not support type narrowing at this time."
+      },
+      {
+        "url": "https://medium.com/@salahinetelecom/mastering-object-oriented-programming-in-dart-a-comprehensive-guide-a9ae11c30eba",
+        "snippet": "In Dart, OOP is not just a feature; it's the backbone of the language. This article will dive deep into how Dart leverages OOP principles to"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-11T02:55:46.900429+00:00",
+    "applied": true
+  },
+  {
+    "claim": "Dart does not support null safety",
+    "correction": "Without null safety, the development workflow might face unpredictable outcomes, as the Dart analyzer cannot ensure null checks at compile time.",
+    "sources": [
+      {
+        "url": "https://www.omi.me/blogs/flutter-errors/cannot-run-with-sound-null-safety-because-the-following-dependencies-dont-support-null-safety-in-flutter-causes-and-how-to-fix",
+        "snippet": "Without null safety, the development workflow might face unpredictable outcomes, as the Dart analyzer cannot ensure null checks at compile time."
+      },
+      {
+        "url": "https://dart.dev/null-safety",
+        "snippet": "dart.dev uses cookies from Google to deliver and enhance the quality of its services and to analyze traffic. * + Dart and Flutter MCP serveropen\\_in\\_new. Watch What's new in Flutter and read the announcement. # Sound null safety. An introduction to null safety in Dart. The Dart language enforces so"
+      },
+      {
+        "url": "https://www.reddit.com/r/dartlang/comments/k2eeuq/using_packages_that_do_not_support_null_safety",
+        "snippet": "Yes, you can. We call this an \"out of order\" migration. The tools do support your application opting in to null safety while using a dependency"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-11T03:05:39.984844+00:00",
+    "applied": true
+  },
+  {
+    "claim": "The earth is flat",
+    "correction": "# Flat Earth. **Flat Earth** is an archaic and scientifically disproven conception of the Earth's shape as a plane \"Plane (geometry)\") or disk \"Disk (mathematics)\"). Many ancient societies subscribed to a flat-Earth cosmography. The model has undergone a recent resurgence as a conspiracy theory in t",
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Flat_Earth",
+        "snippet": "# Flat Earth. **Flat Earth** is an archaic and scientifically disproven conception of the Earth's shape as a plane \"Plane (geometry)\") or disk \"Disk (mathematics)\"). Many ancient societies subscribed to a flat-Earth cosmography. The model has undergone a recent resurgence as a conspiracy theory in t"
+      },
+      {
+        "url": "https://www.theguardian.com/science/brain-flapping/2016/jan/26/earth-totally-flat-conspiracy-bob",
+        "snippet": "The whole \u201cglobe\u201d theory of Earth is just so much hot air. # Why the Earth is actually 100% flat. You may think his claims are ludicrous, but the truth is: they don\u2019t go far enough. Rapper B.o.B. has caused a furore by tweeting that the Earth is in fact flat, and you only need to look at the evidenc"
+      },
+      {
+        "url": "https://www.britannica.com/topic/flat-Earth",
+        "snippet": "horizon  Image shows a sketch of the Earth on graph paper with a photo of the Earth in the background. Blue arrows point to the sketch and the word  world map based on description given by Herodotus in the 5th century bce. * The University of Melbourne - Persuit - Why do some people believe the Eart"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-11T03:07:31.468231+00:00",
+    "applied": true
   }
 ]

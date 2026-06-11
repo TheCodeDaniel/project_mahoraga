@@ -41,7 +41,8 @@ class CloseCaseRequest(BaseModel):
 
 
 class SettingsRequest(BaseModel):
-    groq_api_key: str
+    groq_api_key: str | None = None
+    tavily_api_key: str | None = None
 
 
 # ---------- dashboard ----------
@@ -56,20 +57,36 @@ def dashboard():
 
 @app.get("/settings")
 def get_settings():
-    return {"groq_key_set": bool(os.getenv("GROQ_API_KEY"))}
+    return {
+        "groq_key_set": bool(os.getenv("GROQ_API_KEY")),
+        "tavily_key_set": bool(os.getenv("TAVILY_API_KEY")),
+    }
 
 
 @app.post("/settings")
 def save_settings(req: SettingsRequest):
-    key = req.groq_api_key.strip()
     env_file = str(_ENV_PATH)
-    if key:
-        set_key(env_file, "GROQ_API_KEY", key)
-        os.environ["GROQ_API_KEY"] = key          # hot-reload — no restart needed
-    else:
-        unset_key(env_file, "GROQ_API_KEY")
-        os.environ.pop("GROQ_API_KEY", None)
-    return {"status": "ok", "groq_key_set": bool(key)}
+    if req.groq_api_key is not None:
+        key = req.groq_api_key.strip()
+        if key:
+            set_key(env_file, "GROQ_API_KEY", key)
+            os.environ["GROQ_API_KEY"] = key
+        else:
+            unset_key(env_file, "GROQ_API_KEY")
+            os.environ.pop("GROQ_API_KEY", None)
+    if req.tavily_api_key is not None:
+        key = req.tavily_api_key.strip()
+        if key:
+            set_key(env_file, "TAVILY_API_KEY", key)
+            os.environ["TAVILY_API_KEY"] = key
+        else:
+            unset_key(env_file, "TAVILY_API_KEY")
+            os.environ.pop("TAVILY_API_KEY", None)
+    return {
+        "status": "ok",
+        "groq_key_set": bool(os.getenv("GROQ_API_KEY")),
+        "tavily_key_set": bool(os.getenv("TAVILY_API_KEY")),
+    }
 
 
 # ---------- pipeline ----------
@@ -99,9 +116,8 @@ def evaluate(req: EvaluateRequest):
         "confidence": critic_result["confidence"],
         "correction": critic_result.get("correction"),
         "sources": critic_result.get("sources", [])[:3],
-        "nli_scores": critic_result.get("nli_scores", [])[:5],
+        "tavily_answer": critic_result.get("tavily_answer", ""),
         "scoring_method": critic_result.get("scoring_method"),
-        "stage": critic_result.get("stage"),
         "triggered": trigger["triggered"],
         "reason": trigger.get("reason"),
         "adapter": adapter_result,

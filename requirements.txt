@@ -1,10 +1,5 @@
-requests
-bs4
-ddgs
 fastapi
 uvicorn
 python-dotenv
-transformers
-torch
-sentence-transformers
+tavily-python
 groq
