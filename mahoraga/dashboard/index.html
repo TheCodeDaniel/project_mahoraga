@@ -1140,7 +1140,14 @@
           ? '<span class="badge badge-warning">Yes</span>'
           : '<span class="badge badge-neutral">No</span>';
 
-        document.getElementById("stat-reason").textContent = data.reason || "—";
+        const reasonLabels = {
+          user_flagged: "User flagged",
+          critic_disagreement: "Critic disagreement",
+          low_confidence: "Low confidence",
+          hedged_response: "Hedged response",
+        };
+        document.getElementById("stat-reason").textContent =
+          reasonLabels[data.reason] || data.reason || "—";
 
         document.getElementById("stat-scoring").innerHTML =
           `<span class="badge ${smCls}">${smLabel}</span>`;

@@ -11,8 +11,13 @@ _ASSERT_PATTERN = re.compile(
 
 
 class TriggerEvaluator:
-    def should_trigger(self, response: str, confidence: float, user_flagged: bool) -> dict:
-        """Evaluate whether the adaptation pipeline should be triggered."""
+    def should_trigger(
+        self,
+        response: str,
+        confidence: float,
+        user_flagged: bool,
+        critic_verdict: bool | None = None,
+    ) -> dict:
         if _HEDGE_PATTERN.search(response):
             self_confidence = 0.35
         elif _ASSERT_PATTERN.search(response):
@@ -24,6 +29,8 @@ class TriggerEvaluator:
 
         if user_flagged:
             triggered, reason = True, "user_flagged"
+        elif critic_verdict is False:
+            triggered, reason = True, "critic_disagreement"
         elif effective_confidence < 0.35:
             triggered, reason = True, "low_confidence"
         elif self_confidence <= 0.35:

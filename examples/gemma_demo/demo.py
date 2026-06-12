@@ -20,6 +20,7 @@ def run_pipeline(claim: str, ai_response: str, user_flagged: bool = False) -> di
         response=ai_response,
         confidence=critic_result["confidence"],
         user_flagged=user_flagged,
+        critic_verdict=critic_result["verdict"],
     )
     print(
         f"[TRIGGER] triggered={trigger['triggered']}  reason={trigger['reason']}"

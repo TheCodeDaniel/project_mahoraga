@@ -104,6 +104,7 @@ def evaluate(req: EvaluateRequest):
         response=req.ai_response,
         confidence=critic_result["confidence"],
         user_flagged=req.user_flagged,
+        critic_verdict=critic_result["verdict"],
     )
 
     adapter_result = {"status": "skipped"}
