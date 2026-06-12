@@ -40,5 +40,152 @@
     "confidence": 0.22,
     "timestamp": "2026-06-09T21:44:16.294084+00:00",
     "applied": true
+  },
+  {
+    "claim": "The sun is blue",
+    "correction": "BRITS were left stunned this morning after looking to the sky and finding the sun had turned blue . While it certainly looks supernatural, there is a simple explanation behind the \"eerie&#8221\u2026",
+    "sources": [
+      {
+        "url": "sciencenotes.org/what-color-is-the-sun-hint-not-yellow/",
+        "snippet": "Learn what color the Sun is and why it appears different colors from Space, the Earth, and in photographs."
+      },
+      {
+        "url": "physics.stackexchange.com/questions/375133/why-isnt-the-sun-blue",
+        "snippet": "If I believe right, blue flames are hotter than red ones and if I recall correctly it's because blue tend to ultraviolet. Then why is the sun , which's capable of warming whole planets, red instead of"
+      },
+      {
+        "url": "theaveragescientist.co.uk/2023/08/13/dispelling-the-myth-is-the-sun-really-blue/",
+        "snippet": "Blue stars, which are much hotter than the Sun , have higher surface temperatures and emit a more significant portion of their light in the blue and ultraviolet regions of the spectrum. On the other hand, cooler stars, like red dwarfs, emit more red and infrared light."
+      }
+    ],
+    "confidence": 0.75,
+    "timestamp": "2026-06-10T14:38:36.155433+00:00",
+    "applied": true
+  },
+  {
+    "claim": "dart is not object oriented",
+    "correction": "It mentions that dart is a 100% pure object oriented programming language. Event primitive types, like int and double, are objects and are passed as a",
+    "sources": [
+      {
+        "url": "https://stackoverflow.com/questions/76488263/is-dart-really-100-pure-object-oriented-programming-language",
+        "snippet": "It mentions that dart is a 100% pure object oriented programming language. Event primitive types, like int and double, are objects and are passed as a"
+      },
+      {
+        "url": "https://spin.atomicobject.com/dart-features",
+        "snippet": "Dart is object-oriented, but it provides a lot of features from ... Unfortunately, the Dart compiler does not support type narrowing at this time."
+      },
+      {
+        "url": "https://medium.com/@salahinetelecom/mastering-object-oriented-programming-in-dart-a-comprehensive-guide-a9ae11c30eba",
+        "snippet": "In Dart, OOP is not just a feature; it's the backbone of the language. This article will dive deep into how Dart leverages OOP principles to"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-11T02:55:46.900429+00:00",
+    "applied": true
+  },
+  {
+    "claim": "Dart does not support null safety",
+    "correction": "Without null safety, the development workflow might face unpredictable outcomes, as the Dart analyzer cannot ensure null checks at compile time.",
+    "sources": [
+      {
+        "url": "https://www.omi.me/blogs/flutter-errors/cannot-run-with-sound-null-safety-because-the-following-dependencies-dont-support-null-safety-in-flutter-causes-and-how-to-fix",
+        "snippet": "Without null safety, the development workflow might face unpredictable outcomes, as the Dart analyzer cannot ensure null checks at compile time."
+      },
+      {
+        "url": "https://dart.dev/null-safety",
+        "snippet": "dart.dev uses cookies from Google to deliver and enhance the quality of its services and to analyze traffic. * + Dart and Flutter MCP serveropen\\_in\\_new. Watch What's new in Flutter and read the announcement. # Sound null safety. An introduction to null safety in Dart. The Dart language enforces so"
+      },
+      {
+        "url": "https://www.reddit.com/r/dartlang/comments/k2eeuq/using_packages_that_do_not_support_null_safety",
+        "snippet": "Yes, you can. We call this an \"out of order\" migration. The tools do support your application opting in to null safety while using a dependency"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-11T03:05:39.984844+00:00",
+    "applied": true
+  },
+  {
+    "claim": "The earth is flat",
+    "correction": "# Flat Earth. **Flat Earth** is an archaic and scientifically disproven conception of the Earth's shape as a plane \"Plane (geometry)\") or disk \"Disk (mathematics)\"). Many ancient societies subscribed to a flat-Earth cosmography. The model has undergone a recent resurgence as a conspiracy theory in t",
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Flat_Earth",
+        "snippet": "# Flat Earth. **Flat Earth** is an archaic and scientifically disproven conception of the Earth's shape as a plane \"Plane (geometry)\") or disk \"Disk (mathematics)\"). Many ancient societies subscribed to a flat-Earth cosmography. The model has undergone a recent resurgence as a conspiracy theory in t"
+      },
+      {
+        "url": "https://www.theguardian.com/science/brain-flapping/2016/jan/26/earth-totally-flat-conspiracy-bob",
+        "snippet": "The whole \u201cglobe\u201d theory of Earth is just so much hot air. # Why the Earth is actually 100% flat. You may think his claims are ludicrous, but the truth is: they don\u2019t go far enough. Rapper B.o.B. has caused a furore by tweeting that the Earth is in fact flat, and you only need to look at the evidenc"
+      },
+      {
+        "url": "https://www.britannica.com/topic/flat-Earth",
+        "snippet": "horizon  Image shows a sketch of the Earth on graph paper with a photo of the Earth in the background. Blue arrows point to the sketch and the word  world map based on description given by Herodotus in the 5th century bce. * The University of Melbourne - Persuit - Why do some people believe the Eart"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-11T03:07:31.468231+00:00",
+    "applied": true
+  },
+  {
+    "claim": "The capital of France is Berlin",
+    "correction": "Question Answers for Class 12. What is the capital of France? The correct answer is **Paris**, which is the capital and largest city of France. This beautiful city, often called the \"City of Light,\" has served as France's political, cultural, and economic center for centuries. Berlin is the capital ",
+    "sources": [
+      {
+        "url": "https://www.vedantu.com/question-answer/what-is-the-capital-of-france-a-berlin-b-madrid-693002ab78417d2be4b72cf6",
+        "snippet": "Question Answers for Class 12. What is the capital of France? The correct answer is **Paris**, which is the capital and largest city of France. This beautiful city, often called the \"City of Light,\" has served as France's political, cultural, and economic center for centuries. Berlin is the capital "
+      },
+      {
+        "url": "https://brainly.com/question/38510463",
+        "snippet": "September 25, 2023 - The capital of France is not Madrid (which is the capital of Spain), Berlin ( capital of Germany ), or Rome (capital of Italy). The correct answer is d) Paris. Paris is the largest city and the center of culture, politics, and economy in France."
+      },
+      {
+        "url": "https://brainly.com/question/37630070",
+        "snippet": "# What is the capital of France? The answer to the Multiple Choice Question 'What is the capital of France?' is c) **Paris**, which is the largest city in France and globally renowned as a major cultural and commercial hub. The capital of France as presented in the MCQ format is c) Paris. Paris is n"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-12T17:01:11.265569+00:00",
+    "applied": true
+  },
+  {
+    "claim": "The earth is flat",
+    "correction": "# Flat Earth. **Flat Earth** is an archaic and scientifically disproven conception of the Earth's shape as a plane \"Plane (geometry)\") or disk \"Disk (mathematics)\"). Many ancient societies subscribed to a flat-Earth cosmography. The model has undergone a recent resurgence as a conspiracy theory in t",
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Flat_Earth",
+        "snippet": "# Flat Earth. **Flat Earth** is an archaic and scientifically disproven conception of the Earth's shape as a plane \"Plane (geometry)\") or disk \"Disk (mathematics)\"). Many ancient societies subscribed to a flat-Earth cosmography. The model has undergone a recent resurgence as a conspiracy theory in t"
+      },
+      {
+        "url": "https://www.theguardian.com/science/brain-flapping/2016/jan/26/earth-totally-flat-conspiracy-bob",
+        "snippet": "The whole \u201cglobe\u201d theory of Earth is just so much hot air. # Why the Earth is actually 100% flat. You may think his claims are ludicrous, but the truth is: they don\u2019t go far enough. Rapper B.o.B. has caused a furore by tweeting that the Earth is in fact flat, and you only need to look at the evidenc"
+      },
+      {
+        "url": "https://www.britannica.com/topic/flat-Earth",
+        "snippet": "Flat Earth, the perception that Earth exists as a flat disk, either circular or square-shaped. This view persisted in the ancient world"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-12T17:02:35.529408+00:00",
+    "applied": true
+  },
+  {
+    "claim": "1 and 1 equals 5",
+    "correction": "Test your brain with this challenging math puzzle where 1 + 1 equals 5! Can you solve it? #puzzle #mindpuzzle #brainteaser #mathpuzzle #",
+    "sources": [
+      {
+        "url": "https://www.tiktok.com/@smashingpencils/video/7136294249158462726",
+        "snippet": "Test your brain with this challenging math puzzle where 1 + 1 equals 5! Can you solve it? #puzzle #mindpuzzle #brainteaser #mathpuzzle #"
+      },
+      {
+        "url": "https://math.answers.com/math-and-arithmetic/How_does_1_1_1_1_equal_5",
+        "snippet": "One way is to use the factorial sign (1+1+1)! - 1 = (3!) - 1 = 6-1 = 5."
+      },
+      {
+        "url": "https://davidlarochelle.com/childrens_books/one_plus_one",
+        "snippet": "## David LaRochelle. # 1+ 1= 5 and Other Unlikely Equations. So you think 1 + 1 = 2? With a mix of math and creative thinking, 1 + 1 can equal 3, 13, or even 110. Students in kindergarten through fifth grade have come up with their own creative 1 + 1 equations. What do YOU think 1 + 1 equals? You an"
+      }
+    ],
+    "confidence": 0.82,
+    "timestamp": "2026-06-12T17:03:22.584385+00:00",
+    "applied": true
   }
 ]

@@ -1,151 +1,131 @@
 from __future__ import annotations
 
-from urllib.parse import quote_plus
+import os
+import sys
 
-import requests
-from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
-_DDG_API_URL = "https://api.duckduckgo.com/?q={query}&format=json&no_html=1&skip_disambig=1"
-_DDG_HTML_URL = "https://html.duckduckgo.com/html/?q={query}"
-_BROWSER_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-}
-
-# Lazily loaded on first use — avoids slow import at startup
-_nli_pipeline = None
-
-
-def _get_nli():
-    global _nli_pipeline
-    if _nli_pipeline is None:
-        from transformers import pipeline
-        _nli_pipeline = pipeline(
-            "zero-shot-classification",
-            model="cross-encoder/nli-deberta-v3-small",
-        )
-    return _nli_pipeline
-
-
-def _is_challenge_page(resp: requests.Response) -> bool:
-    return resp.status_code == 202 or "anomaly.js" in resp.text
-
-
-def _ddg_api_sources(claim: str) -> list[dict]:
-    sources: list[dict] = []
-    try:
-        url = _DDG_API_URL.format(query=quote_plus(claim))
-        resp = requests.get(url, timeout=8)
-        if _is_challenge_page(resp):
-            return sources
-        data = resp.json()
-        abstract = data.get("AbstractText", "").strip()
-        abstract_url = data.get("AbstractURL", "").strip()
-        if abstract:
-            sources.append({"url": abstract_url, "snippet": abstract})
-        for topic in data.get("RelatedTopics", [])[:4]:
-            text = topic.get("Text", "").strip()
-            first_url = topic.get("FirstURL", "").strip()
-            if text:
-                sources.append({"url": first_url, "snippet": text})
-    except Exception:
-        pass
-    return sources
-
-
-def _ddg_html_sources(claim: str) -> list[dict]:
-    sources: list[dict] = []
-    try:
-        url = _DDG_HTML_URL.format(query=quote_plus(claim))
-        resp = requests.get(url, headers=_BROWSER_HEADERS, timeout=8)
-        if not _is_challenge_page(resp):
-            soup = BeautifulSoup(resp.text, "html.parser")
-            for result in soup.select(".result")[:5]:
-                snippet_tag = result.select_one(".result__snippet")
-                url_tag = result.select_one(".result__url")
-                snippet = snippet_tag.get_text(" ", strip=True) if snippet_tag else ""
-                href = url_tag.get_text(strip=True) if url_tag else ""
-                if snippet:
-                    sources.append({"url": href, "snippet": snippet})
-            if sources:
-                return sources
-
-        from ddgs import DDGS
-        for r in DDGS().text(claim, max_results=5):
-            snippet = r.get("body", "").strip()
-            href = r.get("href", "").strip()
-            if snippet:
-                sources.append({"url": href, "snippet": snippet})
-    except Exception:
-        pass
-    return sources
-
-
-def _nli_score(claim: str, snippet: str) -> float:
-    """Return supports_score − contradicts_score for the (claim, snippet) pair."""
-    try:
-        nli = _get_nli()
-        result = nli(
-            snippet[:512],
-            candidate_labels=["supports this claim", "contradicts this claim", "unrelated"],
-        )
-        scores = dict(zip(result["labels"], result["scores"]))
-        return scores.get("supports this claim", 0.0) - scores.get("contradicts this claim", 0.0)
-    except Exception:
-        return 0.0
+load_dotenv()
 
 
 class CriticAgent:
+    def __init__(self):
+        tavily_key = os.getenv("TAVILY_API_KEY")
+        groq_key = os.getenv("GROQ_API_KEY")
+
+        if not tavily_key:
+            print("[CRITIC] Warning: TAVILY_API_KEY not set", file=sys.stderr)
+        if not groq_key:
+            print("[CRITIC] Warning: GROQ_API_KEY not set", file=sys.stderr)
+
+        try:
+            from tavily import TavilyClient
+            self._tavily = TavilyClient(api_key=tavily_key) if tavily_key else None
+        except Exception as e:
+            print(f"[CRITIC] Tavily init failed: {e}", file=sys.stderr)
+            self._tavily = None
+
+        try:
+            from groq import Groq
+            self._groq = Groq(api_key=groq_key) if groq_key else None
+        except Exception as e:
+            print(f"[CRITIC] Groq init failed: {e}", file=sys.stderr)
+            self._groq = None
+
     def evaluate(self, claim: str) -> dict:
-        # Gather sources
-        sources = _ddg_api_sources(claim) + _ddg_html_sources(claim)
-        top5 = sources[:5]
+        # ── Step A: Tavily search ─────────────────────────────
+        sources: list[dict] = []
+        direct_answer = ""
+        scoring_method = "tavily+groq"
 
-        # NLI score each source
-        nli_scored = []
-        for src in top5:
-            score = _nli_score(claim, src["snippet"])
-            nli_scored.append({**src, "nli_score": round(score, 4)})
+        try:
+            if self._tavily is None:
+                raise ValueError("Tavily client not initialized")
+            result = self._tavily.search(
+                query=claim,
+                search_depth="basic",
+                max_results=5,
+                include_answer=True,
+            )
+            sources = [
+                {
+                    "url": s.get("url", ""),
+                    "snippet": (s.get("content", "") or "")[:300],
+                }
+                for s in result.get("results", [])
+            ]
+            direct_answer = result.get("answer", "") or ""
+        except Exception as e:
+            print(f"[CRITIC] Tavily error: {e}", file=sys.stderr)
+            scoring_method = "error_tavily"
 
-        # Sort descending by NLI score
-        nli_scored.sort(key=lambda x: x["nli_score"], reverse=True)
+        # ── Step B: Groq judgment ─────────────────────────────
+        verdict: bool | None = None
+        confidence = 0.0
 
-        # Confidence = average of top-3 NLI scores, clamped [0, 1]
-        top3 = nli_scored[:3]
-        avg_score = sum(s["nli_score"] for s in top3) / len(top3) if top3 else 0.0
-        confidence = round(max(0.0, min(1.0, avg_score)), 2)
+        if scoring_method != "error_tavily":
+            try:
+                if self._groq is None:
+                    raise ValueError("Groq client not initialized")
 
-        # Verdict thresholds
-        if avg_score >= 0.2:
-            verdict: bool | None = True
-        elif avg_score <= -0.1:
-            verdict = False
-        else:
-            verdict = None
+                evidence_parts = []
+                if direct_answer:
+                    evidence_parts.append(f"DIRECT ANSWER: {direct_answer}")
+                for i, s in enumerate(sources, 1):
+                    evidence_parts.append(f"{i}. {s['snippet']}")
+                evidence = "\n".join(evidence_parts) if evidence_parts else "No evidence found."
 
-        # Correction: snippet with the most negative NLI score
-        correction: str | None = None
-        if verdict is False and nli_scored:
-            correction = min(nli_scored, key=lambda x: x["nli_score"])["snippet"]
+                response = self._groq.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are a precise fact-checking assistant. You will be given a claim "
+                                "and web evidence. Determine if the claim is factually correct. "
+                                "Respond with EXACTLY one word: SUPPORTED, CONTRADICTED, or INSUFFICIENT."
+                            ),
+                        },
+                        {
+                            "role": "user",
+                            "content": f"CLAIM: {claim}\n\nEVIDENCE:\n{evidence}\n\nVerdict:",
+                        },
+                    ],
+                    max_tokens=5,
+                    temperature=0,
+                )
 
-        clean_sources = [{"url": s["url"], "snippet": s["snippet"]} for s in nli_scored]
-        nli_scores_out = [
-            {"url": s["url"], "snippet": s["snippet"], "nli_score": s["nli_score"]}
-            for s in nli_scored
-        ]
+                word = response.choices[0].message.content.strip().upper()
+
+                if word == "SUPPORTED":
+                    verdict = True
+                    confidence = 0.82
+                elif word == "CONTRADICTED":
+                    verdict = False
+                    confidence = 0.82
+                else:
+                    verdict = None
+                    confidence = 0.40
+
+            except Exception as e:
+                print(f"[CRITIC] Groq error: {e}", file=sys.stderr)
+                scoring_method = "error_groq"
+                verdict = None
+                confidence = 0.0
+
+        # ── Step C: Correction ────────────────────────────────
+        correction = None
+        if verdict is False:
+            correction = sources[0]["snippet"] if sources else (direct_answer or None)
 
         return {
+            "claim": claim,
             "verdict": verdict,
             "confidence": confidence,
-            "sources": clean_sources,
-            "nli_scores": nli_scores_out,
+            "sources": sources[:3],
             "correction": correction,
-            "claim": claim,
+            "scoring_method": scoring_method,
+            "tavily_answer": direct_answer,
         }
 
 
@@ -153,11 +133,12 @@ if __name__ == "__main__":
     import json
 
     agent = CriticAgent()
-    claims = [
-        "The flutter_gemma package requires iOS 14 or higher",
-        "Python was created by Guido van Rossum in 1991",
-    ]
-    for c in claims:
-        print(f"\nClaim: {c}")
-        result = agent.evaluate(c)
-        print(json.dumps(result, indent=2))
+    for claim in [
+        "The sun is actually yellow",
+        "Python was created by Guido van Rossum",
+        "Dart does not support null safety",
+        "1+1 equals 2",
+        "The earth is flat",
+    ]:
+        print(f"\n{'─' * 60}\nClaim: {claim}")
+        print(json.dumps(agent.evaluate(claim), indent=2))

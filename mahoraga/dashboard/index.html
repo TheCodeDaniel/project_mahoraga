@@ -1,759 +1,1217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Mahoraga</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Mahoraga</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #FAFAFA;
-      color: #111;
-      font-size: 14px;
-      line-height: 1.5;
-    }
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: #fafafa;
+        color: #111;
+        font-size: 14px;
+        line-height: 1.5;
+      }
 
-    /* ── Layout ── */
-    #app { display: flex; min-height: 100vh; }
+      /* ── Layout ── */
+      #app {
+        display: flex;
+        min-height: 100vh;
+      }
 
-    #sidebar {
-      width: 240px;
-      min-height: 100vh;
-      background: #F8F8FB;
-      border-right: 1px solid #E4E4E7;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
+      #sidebar {
+        width: 240px;
+        min-height: 100vh;
+        background: #f8f8fb;
+        border-right: 1px solid #e4e4e7;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
 
-    .sidebar-logo {
-      padding: 22px 20px 18px;
-      border-bottom: 1px solid #E4E4E7;
-    }
-    .sidebar-logo-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #111;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .sidebar-logo-icon {
-      width: 28px; height: 28px;
-      background: #5B5BD6;
-      border-radius: 7px;
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 14px;
-    }
-    .sidebar-logo-sub { font-size: 11.5px; color: #6F6F6F; margin-top: 3px; padding-left: 36px; }
+      .sidebar-logo {
+        padding: 22px 20px 18px;
+        border-bottom: 1px solid #e4e4e7;
+      }
+      .sidebar-logo-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .sidebar-logo-icon {
+        width: 28px;
+        height: 28px;
+        background: #5b5bd6;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+      }
+      .sidebar-logo-sub {
+        font-size: 11.5px;
+        color: #6f6f6f;
+        margin-top: 3px;
+        padding-left: 36px;
+      }
 
-    .nav-section { padding: 16px 8px 4px; }
+      .nav-section {
+        padding: 16px 8px 4px;
+      }
 
-    .nav-label {
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      color: #9B9BAD;
-      text-transform: uppercase;
-      padding: 0 12px 8px;
-    }
+      .nav-label {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        color: #9b9bad;
+        text-transform: uppercase;
+        padding: 0 12px 8px;
+      }
 
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 12px;
-      cursor: pointer;
-      border-radius: 8px;
-      color: #3E3E50;
-      font-size: 13.5px;
-      font-weight: 500;
-      transition: background 0.12s, color 0.12s;
-      user-select: none;
-    }
-    .nav-item:hover { background: #EEEEFF; color: #5B5BD6; }
-    .nav-item.active { background: #EEEEFF; color: #5B5BD6; font-weight: 600; }
-    .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        color: #3e3e50;
+        font-size: 13.5px;
+        font-weight: 500;
+        transition:
+          background 0.12s,
+          color 0.12s;
+        user-select: none;
+      }
+      .nav-item:hover {
+        background: #eeeeff;
+        color: #5b5bd6;
+      }
+      .nav-item.active {
+        background: #eeeeff;
+        color: #5b5bd6;
+        font-weight: 600;
+      }
+      .nav-icon {
+        font-size: 15px;
+        width: 20px;
+        text-align: center;
+        flex-shrink: 0;
+      }
 
-    #content {
-      margin-left: 240px;
-      flex: 1;
-      background: white;
-      min-height: 100vh;
-      padding: 36px 44px;
-    }
+      #content {
+        margin-left: 240px;
+        flex: 1;
+        background: white;
+        min-height: 100vh;
+        padding: 36px 44px;
+      }
 
-    /* ── Views ── */
-    .view { display: none; }
-    .view.active { display: block; }
+      /* ── Views ── */
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+      }
 
-    .view-header { margin-bottom: 28px; }
-    .view-header h1 { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 5px; }
-    .view-header p { color: #6F6F6F; font-size: 13.5px; }
+      .view-header {
+        margin-bottom: 28px;
+      }
+      .view-header h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #111;
+        margin-bottom: 5px;
+      }
+      .view-header p {
+        color: #6f6f6f;
+        font-size: 13.5px;
+      }
 
-    /* ── Cards ── */
-    .card {
-      background: white;
-      border: 1px solid #E4E4E7;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 20px;
-    }
-    .card h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #111;
-      margin-bottom: 16px;
-    }
+      /* ── Cards ── */
+      .card {
+        background: white;
+        border: 1px solid #e4e4e7;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+      .card h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #111;
+        margin-bottom: 16px;
+      }
 
-    /* ── Stats row ── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-    .stat-card {
-      background: white;
-      border: 1px solid #E4E4E7;
-      border-radius: 12px;
-      padding: 18px 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .stat-label {
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      color: #9B9BAD;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .stat-value { font-size: 21px; font-weight: 700; color: #111; }
+      /* ── Stats row ── */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: white;
+        border: 1px solid #e4e4e7;
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .stat-label {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        color: #9b9bad;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .stat-value {
+        font-size: 21px;
+        font-weight: 700;
+        color: #111;
+      }
 
-    /* ── Forms ── */
-    .form-group { margin-bottom: 16px; }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: #3E3E50;
-      margin-bottom: 6px;
-    }
-    .form-group input[type="text"],
-    .form-group textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #E4E4E7;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 14px;
-      color: #111;
-      background: white;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .form-group input[type="text"]:focus,
-    .form-group textarea:focus {
-      border-color: #5B5BD6;
-      box-shadow: 0 0 0 3px rgba(91,91,214,0.12);
-    }
-    textarea { resize: vertical; min-height: 80px; }
+      /* ── Forms ── */
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #3e3e50;
+        margin-bottom: 6px;
+      }
+      .form-group input[type="text"],
+      .form-group textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e4e4e7;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        color: #111;
+        background: white;
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .form-group input[type="text"]:focus,
+      .form-group textarea:focus {
+        border-color: #5b5bd6;
+        box-shadow: 0 0 0 3px rgba(91, 91, 214, 0.12);
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
 
-    .toggle-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-    .toggle-group label { font-size: 13px; font-weight: 500; color: #3E3E50; cursor: pointer; }
+      .toggle-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        cursor: pointer;
+      }
+      .toggle-group label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #3e3e50;
+        cursor: pointer;
+      }
 
-    /* ── Buttons ── */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      padding: 9px 18px;
-      border: none;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 13.5px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.14s, opacity 0.14s;
-      white-space: nowrap;
-    }
-    .btn-primary { background: #5B5BD6; color: white; }
-    .btn-primary:hover:not(:disabled) { background: #4E4EC2; }
-    .btn-secondary { background: #F0F0F5; color: #3E3E50; }
-    .btn-secondary:hover:not(:disabled) { background: #E4E4EB; }
-    .btn-danger { background: #E5484D; color: white; }
-    .btn-danger:hover:not(:disabled) { background: #D03A3F; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      /* ── Buttons ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 18px;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 13.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background 0.14s,
+          opacity 0.14s;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: #5b5bd6;
+        color: white;
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: #4e4ec2;
+      }
+      .btn-secondary {
+        background: #f0f0f5;
+        color: #3e3e50;
+      }
+      .btn-secondary:hover:not(:disabled) {
+        background: #e4e4eb;
+      }
+      .btn-danger {
+        background: #e5484d;
+        color: white;
+      }
+      .btn-danger:hover:not(:disabled) {
+        background: #d03a3f;
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
-    /* ── Badges ── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      line-height: 1.4;
-    }
-    .badge-success { background: #D4F0E0; color: #12A150; }
-    .badge-danger  { background: #FFE0E0; color: #D93025; }
-    .badge-warning { background: #FFEBD6; color: #C95E00; }
-    .badge-neutral { background: #F0F0F5; color: #6F6F6F; }
-    .badge-info    { background: #E8E8FF; color: #5B5BD6; }
+      /* ── Badges ── */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+      .badge-success {
+        background: #d4f0e0;
+        color: #12a150;
+      }
+      .badge-danger {
+        background: #ffe0e0;
+        color: #d93025;
+      }
+      .badge-warning {
+        background: #ffebd6;
+        color: #c95e00;
+      }
+      .badge-neutral {
+        background: #f0f0f5;
+        color: #6f6f6f;
+      }
+      .badge-info {
+        background: #e8e8ff;
+        color: #5b5bd6;
+      }
 
-    /* ── Progress bar ── */
-    .progress-track {
-      background: #F0F0F5;
-      border-radius: 6px;
-      height: 10px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-    .progress-fill {
-      height: 100%;
-      border-radius: 6px;
-      transition: width 0.45s ease, background 0.45s ease;
-    }
+      /* ── Progress bar ── */
+      .progress-track {
+        background: #f0f0f5;
+        border-radius: 6px;
+        height: 10px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 6px;
+        transition:
+          width 0.45s ease,
+          background 0.45s ease;
+      }
 
-    /* ── NLI bar ── */
-    .nli-bar-wrap {
-      position: relative;
-      height: 7px;
-      background: #F0F0F5;
-      border-radius: 4px;
-      margin-top: 8px;
-      overflow: visible;
-    }
-    .nli-bar-center {
-      position: absolute;
-      left: 50%; top: -2px;
-      width: 2px; height: calc(100% + 4px);
-      background: #C8C8D8;
-      transform: translateX(-50%);
-      z-index: 2;
-      border-radius: 1px;
-    }
-    .nli-bar-fill {
-      position: absolute;
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.4s ease;
-    }
-    .nli-bar-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: #9B9BAD;
-      margin-top: 4px;
-    }
-    .nli-score-val { font-weight: 700; font-size: 11px; }
+      /* ── NLI bar ── */
+      .nli-bar-wrap {
+        position: relative;
+        height: 7px;
+        background: #f0f0f5;
+        border-radius: 4px;
+        margin-top: 8px;
+        overflow: visible;
+      }
+      .nli-bar-center {
+        position: absolute;
+        left: 50%;
+        top: -2px;
+        width: 2px;
+        height: calc(100% + 4px);
+        background: #c8c8d8;
+        transform: translateX(-50%);
+        z-index: 2;
+        border-radius: 1px;
+      }
+      .nli-bar-fill {
+        position: absolute;
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.4s ease;
+      }
+      .nli-bar-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: #9b9bad;
+        margin-top: 4px;
+      }
+      .nli-score-val {
+        font-weight: 700;
+        font-size: 11px;
+      }
 
-    /* ── Sources ── */
-    .source-item {
-      border: 1px solid #EBEBF0;
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      background: white;
-      transition: border-color 0.15s;
-    }
-    .source-item:hover { border-color: #C8C8E0; }
-    .source-url {
-      font-size: 12px;
-      color: #5B5BD6;
-      font-weight: 500;
-      margin-bottom: 5px;
-      word-break: break-all;
-    }
-    .source-snippet { font-size: 13px; color: #444; line-height: 1.55; }
-    .source-nli { margin-top: 10px; }
+      /* ── Sources ── */
+      .source-item {
+        border: 1px solid #ebebf0;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        background: white;
+        transition: border-color 0.15s;
+      }
+      .source-item:hover {
+        border-color: #c8c8e0;
+      }
+      .source-url {
+        font-size: 12px;
+        color: #5b5bd6;
+        font-weight: 500;
+        margin-bottom: 5px;
+        word-break: break-all;
+      }
+      .source-snippet {
+        font-size: 13px;
+        color: #444;
+        line-height: 1.55;
+      }
+      .source-nli {
+        margin-top: 10px;
+      }
 
-    /* ── Table ── */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    thead th {
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #9B9BAD;
-      padding: 12px 18px;
-      text-align: left;
-      border-bottom: 1px solid #E4E4E7;
-      white-space: nowrap;
-    }
-    td {
-      padding: 13px 18px;
-      border-bottom: 1px solid #F0F0F5;
-      vertical-align: top;
-      color: #333;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:nth-child(even) td { background: #FAFAFA; }
+      /* ── Table ── */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      thead th {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #9b9bad;
+        padding: 12px 18px;
+        text-align: left;
+        border-bottom: 1px solid #e4e4e7;
+        white-space: nowrap;
+      }
+      td {
+        padding: 13px 18px;
+        border-bottom: 1px solid #f0f0f5;
+        vertical-align: top;
+        color: #333;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:nth-child(even) td {
+        background: #fafafa;
+      }
 
-    /* ── Error card ── */
-    .error-card {
-      background: #FFF2F2;
-      border: 1px solid #FFCACA;
-      border-radius: 10px;
-      padding: 13px 16px;
-      color: #C62828;
-      font-size: 13px;
-      margin-bottom: 16px;
-      display: none;
-    }
-    .error-card.show { display: block; }
+      /* ── Error card ── */
+      .error-card {
+        background: #fff2f2;
+        border: 1px solid #ffcaca;
+        border-radius: 10px;
+        padding: 13px 16px;
+        color: #c62828;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .error-card.show {
+        display: block;
+      }
 
-    /* ── Spinner ── */
-    .spinner {
-      display: inline-block;
-      width: 13px; height: 13px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.65s linear infinite;
-      flex-shrink: 0;
-    }
-    .spinner-dark {
-      border-color: rgba(91,91,214,0.25);
-      border-top-color: #5B5BD6;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+      /* ── Spinner ── */
+      .spinner {
+        display: inline-block;
+        width: 13px;
+        height: 13px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.65s linear infinite;
+        flex-shrink: 0;
+      }
+      .spinner-dark {
+        border-color: rgba(91, 91, 214, 0.25);
+        border-top-color: #5b5bd6;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
 
-    /* ── Empty state ── */
-    .empty-state {
-      text-align: center;
-      padding: 52px 24px;
-      color: #9B9BAD;
-    }
-    .empty-state-icon { font-size: 36px; margin-bottom: 12px; }
-    .empty-state h3 { font-size: 15px; font-weight: 600; color: #6F6F6F; margin-bottom: 6px; }
-    .empty-state p { font-size: 13px; }
+      /* ── Empty state ── */
+      .empty-state {
+        text-align: center;
+        padding: 52px 24px;
+        color: #9b9bad;
+      }
+      .empty-state-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
+      .empty-state h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #6f6f6f;
+        margin-bottom: 6px;
+      }
+      .empty-state p {
+        font-size: 13px;
+      }
 
-    /* ── Correction block ── */
-    .correction-block {
-      background: #FFFBEB;
-      border: 1px solid #FDE68A;
-      border-radius: 8px;
-      padding: 13px 16px;
-      font-size: 13px;
-      color: #78420A;
-      line-height: 1.6;
-    }
+      /* ── Correction block ── */
+      .correction-block {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        padding: 13px 16px;
+        font-size: 13px;
+        color: #78420a;
+        line-height: 1.6;
+      }
 
-    /* ── Case card ── */
-    .case-card {
-      border: 1px solid #E4E4E7;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      background: white;
-    }
-    .case-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-    .case-id-text {
-      font-family: 'Menlo', 'Monaco', monospace;
-      font-size: 11.5px;
-      color: #6F6F6F;
-      word-break: break-all;
-    }
+      /* ── Case card ── */
+      .case-card {
+        border: 1px solid #e4e4e7;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        background: white;
+      }
+      .case-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      .case-id-text {
+        font-family: "Menlo", "Monaco", monospace;
+        font-size: 11.5px;
+        color: #6f6f6f;
+        word-break: break-all;
+      }
 
-    /* ── Two-col grid ── */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+      /* ── Two-col grid ── */
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      @media (max-width: 860px) {
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+      }
 
-    /* ── Health ── */
-    .health-dot {
-      width: 11px; height: 11px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+      /* ── Health ── */
+      .health-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
 
-    .divider { border: none; border-top: 1px solid #E4E4E7; margin: 22px 0; }
-    .text-muted { color: #6F6F6F; }
-    .mt-4 { margin-top: 4px; }
-    .hidden { display: none !important; }
-  </style>
-</head>
-<body>
-<div id="app">
-
-  <!-- ───────── Sidebar ───────── -->
-  <nav id="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-title">
-        <div class="sidebar-logo-icon">M</div>
-        Project Mahoraga
-      </div>
-      <div class="sidebar-logo-sub">Adaptive AI Critic System</div>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-label">Tools</div>
-      <div class="nav-item active" data-view="evaluate" onclick="navigate('evaluate')">
-        <span class="nav-icon">🔍</span> Evaluate
-      </div>
-      <div class="nav-item" data-view="knowledge" onclick="navigate('knowledge')">
-        <span class="nav-icon">📚</span> Knowledge Base
-      </div>
-      <div class="nav-item" data-view="cases" onclick="navigate('cases')">
-        <span class="nav-icon">📋</span> Cases
-      </div>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-label">General</div>
-      <div class="nav-item" data-view="health" onclick="navigate('health')">
-        <span class="nav-icon">💚</span> Health
-      </div>
-    </div>
-  </nav>
-
-  <!-- ───────── Main content ───────── -->
-  <main id="content">
-
-    <!-- ═══════ EVALUATE ═══════ -->
-    <div id="view-evaluate" class="view active">
-      <div class="view-header">
-        <h1>Evaluate</h1>
-        <p>Run the full Mahoraga pipeline — Critic → Trigger → Adapter — against any claim.</p>
-      </div>
-
-      <div class="card">
-        <div class="form-group">
-          <label for="claim-input">Claim</label>
-          <input type="text" id="claim-input"
-            placeholder="e.g. Python was created by Guido van Rossum in 1991">
-        </div>
-        <div class="form-group">
-          <label for="response-input">AI Response</label>
-          <textarea id="response-input" rows="3"
-            placeholder="e.g. I think Python was created by Guido van Rossum in 1991"></textarea>
-        </div>
-        <div class="toggle-group">
-          <input type="checkbox" id="flagged-input">
-          <label for="flagged-input">User Flagged</label>
-        </div>
-        <div class="error-card" id="evaluate-error"></div>
-        <button class="btn btn-primary" id="run-btn" onclick="runPipeline()">
-          ▶ Run Pipeline
-        </button>
-      </div>
-
-      <!-- Results -->
-      <div id="results-panel" class="hidden">
-        <div class="stats-row" id="stats-row">
-          <div class="stat-card">
-            <div class="stat-label">Verdict</div>
-            <div id="stat-verdict" class="mt-4"></div>
+      .divider {
+        border: none;
+        border-top: 1px solid #e4e4e7;
+        margin: 22px 0;
+      }
+      .text-muted {
+        color: #6f6f6f;
+      }
+      .mt-4 {
+        margin-top: 4px;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- ───────── Sidebar ───────── -->
+      <nav id="sidebar">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-title">
+            <div class="sidebar-logo-icon">M</div>
+            Project Mahoraga
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Confidence</div>
-            <div id="stat-confidence" class="stat-value mt-4">—</div>
-            <div class="progress-track">
-              <div id="confidence-bar" class="progress-fill" style="width:0%"></div>
+          <div class="sidebar-logo-sub">Adaptive AI Critic System</div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label">Tools</div>
+          <div
+            class="nav-item active"
+            data-view="evaluate"
+            onclick="navigate('evaluate')"
+          >
+            <span class="nav-icon">🔍</span> Evaluate
+          </div>
+          <div
+            class="nav-item"
+            data-view="knowledge"
+            onclick="navigate('knowledge')"
+          >
+            <span class="nav-icon">📚</span> Knowledge Base
+          </div>
+          <div class="nav-item" data-view="cases" onclick="navigate('cases')">
+            <span class="nav-icon">📋</span> Cases
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label">General</div>
+          <div class="nav-item" data-view="health" onclick="navigate('health')">
+            <span class="nav-icon">💚</span> Health
+          </div>
+          <div
+            class="nav-item"
+            data-view="settings"
+            onclick="navigate('settings')"
+          >
+            <span class="nav-icon">⚙️</span> Settings
+          </div>
+        </div>
+      </nav>
+
+      <!-- ───────── Main content ───────── -->
+      <main id="content">
+        <!-- ═══════ EVALUATE ═══════ -->
+        <div id="view-evaluate" class="view active">
+          <div class="view-header">
+            <h1>Evaluate</h1>
+            <p>
+              Run the full Mahoraga pipeline — Critic → Trigger → Adapter —
+              against any claim.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="form-group">
+              <label for="claim-input">Claim</label>
+              <input
+                type="text"
+                id="claim-input"
+                placeholder="e.g. Python was created by Guido van Rossum in 1991"
+              />
+            </div>
+            <div class="form-group">
+              <label for="response-input">AI Response</label>
+              <textarea
+                id="response-input"
+                rows="3"
+                placeholder="e.g. I think Python was created by Guido van Rossum in 1991"
+              ></textarea>
+            </div>
+            <div class="toggle-group">
+              <input type="checkbox" id="flagged-input" />
+              <label for="flagged-input">User Flagged</label>
+            </div>
+            <div class="error-card" id="evaluate-error"></div>
+            <button
+              class="btn btn-primary"
+              id="run-btn"
+              onclick="runPipeline()"
+            >
+              ▶ Run Pipeline
+            </button>
+          </div>
+
+          <!-- Results -->
+          <div id="results-panel" class="hidden">
+            <div class="stats-row" id="stats-row">
+              <div class="stat-card">
+                <div class="stat-label">Verdict</div>
+                <div id="stat-verdict" class="mt-4"></div>
+                <div id="stat-scoring-inline" class="mt-4"></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Confidence</div>
+                <div id="stat-confidence" class="stat-value mt-4">—</div>
+                <div class="progress-track">
+                  <div
+                    id="confidence-bar"
+                    class="progress-fill"
+                    style="width: 0%"
+                  ></div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Triggered</div>
+                <div id="stat-triggered" class="mt-4"></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Reason</div>
+                <div
+                  id="stat-reason"
+                  style="font-size: 13px; color: #444; margin-top: 6px"
+                >
+                  —
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Scoring Method</div>
+                <div id="stat-scoring" class="mt-4">—</div>
+              </div>
+            </div>
+
+            <div id="correction-section" class="card hidden">
+              <h3>⚠ Correction</h3>
+              <div id="correction-text" class="correction-block"></div>
+            </div>
+
+            <div id="tavily-answer-section" class="card hidden" style="background: #eeeeff; border-left: 3px solid #5b5bd6; padding-left: 20px;">
+              <h3 style="color: #5b5bd6;">Direct Answer</h3>
+              <div id="tavily-answer-text" style="font-size: 13px; color: #333; line-height: 1.6;"></div>
+            </div>
+
+            <div class="card">
+              <h3>Sources</h3>
+              <div id="sources-list"></div>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Triggered</div>
-            <div id="stat-triggered" class="mt-4"></div>
+        </div>
+
+        <!-- ═══════ KNOWLEDGE BASE ═══════ -->
+        <div id="view-knowledge" class="view">
+          <div class="view-header">
+            <h1>Knowledge Base</h1>
+            <p>
+              Confirmed corrections stored by the Adapter after each adaptation
+              cycle.
+            </p>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Reason</div>
-            <div id="stat-reason" style="font-size:13px; color:#444; margin-top:6px">—</div>
+          <div style="margin-bottom: 16px">
+            <button class="btn btn-secondary" onclick="loadKnowledge()">
+              ↺ Refresh
+            </button>
+          </div>
+          <div class="error-card" id="knowledge-error"></div>
+          <div class="card" style="padding: 0; overflow: hidden">
+            <div id="knowledge-content">
+              <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>Loading…</h3>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div id="correction-section" class="card hidden">
-          <h3>⚠ Correction</h3>
-          <div id="correction-text" class="correction-block"></div>
+        <!-- ═══════ CASES ═══════ -->
+        <div id="view-cases" class="view">
+          <div class="view-header">
+            <h1>Cases</h1>
+            <p>
+              Open and close Maestro investigation cases (local simulation).
+            </p>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <h3>Open a Case</h3>
+              <div class="form-group">
+                <label>Trigger Data (JSON)</label>
+                <textarea
+                  id="case-trigger-input"
+                  rows="5"
+                  placeholder='{"triggered": true, "reason": "user_flagged", "confidence": 0.2}'
+                ></textarea>
+              </div>
+              <div class="error-card" id="open-case-error"></div>
+              <button class="btn btn-primary" onclick="openCase()">
+                Open Case
+              </button>
+            </div>
+
+            <div class="card">
+              <h3>Close a Case</h3>
+              <div class="form-group">
+                <label>Case ID</label>
+                <input
+                  type="text"
+                  id="close-case-id"
+                  placeholder="Paste case UUID here"
+                />
+              </div>
+              <div class="form-group">
+                <label>Resolution</label>
+                <input
+                  type="text"
+                  id="close-resolution"
+                  placeholder="e.g. adapter_updated"
+                />
+              </div>
+              <div class="error-card" id="close-case-error"></div>
+              <button class="btn btn-danger" onclick="closeCase()">
+                Close Case
+              </button>
+            </div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 14px;
+            "
+          >
+            <h3 style="margin: 0">Active Cases</h3>
+            <button
+              class="btn btn-secondary"
+              style="padding: 7px 14px; font-size: 12px"
+              onclick="loadCases()"
+            >
+              ↺ Refresh
+            </button>
+          </div>
+          <div class="error-card" id="cases-error"></div>
+          <div id="cases-list"></div>
         </div>
 
-        <div class="card">
-          <h3>Sources &amp; NLI Scores</h3>
-          <div id="sources-list"></div>
+        <!-- ═══════ HEALTH ═══════ -->
+        <div id="view-health" class="view">
+          <div class="view-header">
+            <h1>Health</h1>
+            <p>Service liveness and diagnostics.</p>
+          </div>
+          <div style="margin-bottom: 16px">
+            <button class="btn btn-secondary" onclick="loadHealth()">
+              ↺ Refresh
+            </button>
+          </div>
+          <div class="error-card" id="health-error"></div>
+          <div id="health-content"></div>
         </div>
-      </div>
+
+        <!-- ═══════ SETTINGS ═══════ -->
+        <div id="view-settings" class="view">
+          <div class="view-header">
+            <h1>Settings</h1>
+            <p>Configure API keys used by the pipeline.</p>
+          </div>
+
+          <div class="card" style="max-width: 560px">
+            <h3>Groq API Key</h3>
+            <p
+              style="
+                font-size: 13px;
+                color: #6f6f6f;
+                margin-bottom: 18px;
+                line-height: 1.6;
+              "
+            >
+              Used for LLM verdict judgment — determines SUPPORTED, CONTRADICTED, or
+              INSUFFICIENT from the web evidence retrieved by Tavily. Without a key
+              the pipeline returns <code>error_groq</code>.<br />
+              Get a free key at
+              <a
+                href="https://console.groq.com"
+                target="_blank"
+                style="color: #5b5bd6; text-decoration: none; font-weight: 500"
+                >console.groq.com →</a
+              >
+            </p>
+
+            <div id="groq-key-status" style="margin-bottom: 18px"></div>
+
+            <div class="form-group">
+              <label>API Key</label>
+              <div style="display: flex; gap: 8px">
+                <input
+                  type="password"
+                  id="groq-key-input"
+                  placeholder="gsk_…"
+                  style="flex: 1; font-family: monospace; font-size: 13px"
+                />
+                <button
+                  class="btn btn-secondary"
+                  id="toggle-key-btn"
+                  onclick="toggleKeyVis()"
+                  style="flex-shrink: 0; min-width: 64px"
+                >
+                  Show
+                </button>
+              </div>
+            </div>
+
+            <div class="error-card" id="settings-error"></div>
+
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                flex-wrap: wrap;
+              "
+            >
+              <button class="btn btn-primary" onclick="saveGroqKey()">
+                Save Key
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="clearGroqKey()"
+                style="color: #e5484d"
+              >
+                Remove Key
+              </button>
+              <span
+                id="settings-saved"
+                style="
+                  font-size: 13px;
+                  color: #12a150;
+                  font-weight: 500;
+                  display: none;
+                "
+                >✓ Saved</span
+              >
+              <span
+                id="settings-cleared"
+                style="font-size: 13px; color: #6f6f6f; display: none"
+                >Key removed</span
+              >
+            </div>
+          </div>
+
+          <div class="card" style="max-width: 560px; margin-top: 20px">
+            <h3>Tavily API Key</h3>
+            <p
+              style="
+                font-size: 13px;
+                color: #6f6f6f;
+                margin-bottom: 18px;
+                line-height: 1.6;
+              "
+            >
+              Used for AI-powered web search to retrieve evidence for
+              fact-checking. Without a key the pipeline returns
+              <code>error_tavily</code> and skips all verification.<br />
+              Get a free key at
+              <a
+                href="https://tavily.com"
+                target="_blank"
+                style="color: #5b5bd6; text-decoration: none; font-weight: 500"
+                >tavily.com →</a
+              >
+            </p>
+
+            <div id="tavily-key-status" style="margin-bottom: 18px"></div>
+
+            <div class="form-group">
+              <label>API Key</label>
+              <div style="display: flex; gap: 8px">
+                <input
+                  type="password"
+                  id="tavily-key-input"
+                  placeholder="tvly-…"
+                  style="flex: 1; font-family: monospace; font-size: 13px"
+                />
+                <button
+                  class="btn btn-secondary"
+                  id="toggle-tavily-btn"
+                  onclick="toggleTavilyKeyVis()"
+                  style="flex-shrink: 0; min-width: 64px"
+                >
+                  Show
+                </button>
+              </div>
+            </div>
+
+            <div class="error-card" id="tavily-settings-error"></div>
+
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                flex-wrap: wrap;
+              "
+            >
+              <button class="btn btn-primary" onclick="saveTavilyKey()">
+                Save Key
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="clearTavilyKey()"
+                style="color: #e5484d"
+              >
+                Remove Key
+              </button>
+              <span
+                id="tavily-settings-saved"
+                style="
+                  font-size: 13px;
+                  color: #12a150;
+                  font-weight: 500;
+                  display: none;
+                "
+                >✓ Saved</span
+              >
+              <span
+                id="tavily-settings-cleared"
+                style="font-size: 13px; color: #6f6f6f; display: none"
+                >Key removed</span
+              >
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
-    <!-- ═══════ KNOWLEDGE BASE ═══════ -->
-    <div id="view-knowledge" class="view">
-      <div class="view-header">
-        <h1>Knowledge Base</h1>
-        <p>Confirmed corrections stored by the Adapter after each adaptation cycle.</p>
-      </div>
-      <div style="margin-bottom:16px">
-        <button class="btn btn-secondary" onclick="loadKnowledge()">↺ Refresh</button>
-      </div>
-      <div class="error-card" id="knowledge-error"></div>
-      <div class="card" style="padding:0; overflow:hidden">
-        <div id="knowledge-content">
-          <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
-            <h3>Loading…</h3>
-          </div>
-        </div>
-      </div>
-    </div>
+    <script>
+      const API_BASE = window.location.origin;
 
-    <!-- ═══════ CASES ═══════ -->
-    <div id="view-cases" class="view">
-      <div class="view-header">
-        <h1>Cases</h1>
-        <p>Open and close Maestro investigation cases (local simulation).</p>
-      </div>
+      // ─────────────────────────────────────
+      // Navigation
+      // ─────────────────────────────────────
+      function navigate(view) {
+        document
+          .querySelectorAll(".view")
+          .forEach((v) => v.classList.remove("active"));
+        document.getElementById("view-" + view).classList.add("active");
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("active"));
+        document
+          .querySelector('[data-view="' + view + '"]')
+          .classList.add("active");
+        if (view === "knowledge") loadKnowledge();
+        if (view === "cases") loadCases();
+        if (view === "health") loadHealth();
+        if (view === "settings") loadSettings();
+      }
 
-      <div class="two-col">
-        <div class="card">
-          <h3>Open a Case</h3>
-          <div class="form-group">
-            <label>Trigger Data (JSON)</label>
-            <textarea id="case-trigger-input" rows="5"
-              placeholder='{"triggered": true, "reason": "user_flagged", "confidence": 0.2}'></textarea>
-          </div>
-          <div class="error-card" id="open-case-error"></div>
-          <button class="btn btn-primary" onclick="openCase()">Open Case</button>
-        </div>
+      // ─────────────────────────────────────
+      // API helper
+      // ─────────────────────────────────────
+      async function apiFetch(method, path, body) {
+        const opts = {
+          method,
+          headers: { "Content-Type": "application/json" },
+        };
+        if (body !== undefined) opts.body = JSON.stringify(body);
+        const res = await fetch(API_BASE + path, opts);
+        const text = await res.text();
+        if (!res.ok) {
+          let detail = text;
+          try {
+            const d = JSON.parse(text).detail;
+            detail = Array.isArray(d)
+              ? d.map((e) => e.msg || JSON.stringify(e)).join(", ")
+              : typeof d === "string"
+              ? d
+              : text;
+          } catch (_) {}
+          throw new Error("HTTP " + res.status + ": " + detail);
+        }
+        return JSON.parse(text);
+      }
 
-        <div class="card">
-          <h3>Close a Case</h3>
-          <div class="form-group">
-            <label>Case ID</label>
-            <input type="text" id="close-case-id" placeholder="Paste case UUID here">
-          </div>
-          <div class="form-group">
-            <label>Resolution</label>
-            <input type="text" id="close-resolution" placeholder="e.g. adapter_updated">
-          </div>
-          <div class="error-card" id="close-case-error"></div>
-          <button class="btn btn-danger" onclick="closeCase()">Close Case</button>
-        </div>
-      </div>
+      function showError(id, msg) {
+        const el = document.getElementById(id);
+        el.textContent = "⚠ " + msg;
+        el.classList.add("show");
+      }
+      function clearError(id) {
+        const el = document.getElementById(id);
+        el.textContent = "";
+        el.classList.remove("show");
+      }
+      function esc(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
 
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px">
-        <h3 style="margin:0">Active Cases</h3>
-        <button class="btn btn-secondary" style="padding:7px 14px; font-size:12px"
-          onclick="loadCases()">↺ Refresh</button>
-      </div>
-      <div class="error-card" id="cases-error"></div>
-      <div id="cases-list"></div>
-    </div>
+      // ─────────────────────────────────────
+      // EVALUATE
+      // ─────────────────────────────────────
+      async function runPipeline() {
+        const claim = document.getElementById("claim-input").value.trim();
+        const aiResponse = document
+          .getElementById("response-input")
+          .value.trim();
+        const userFlagged = document.getElementById("flagged-input").checked;
 
-    <!-- ═══════ HEALTH ═══════ -->
-    <div id="view-health" class="view">
-      <div class="view-header">
-        <h1>Health</h1>
-        <p>Service liveness and diagnostics.</p>
-      </div>
-      <div style="margin-bottom:16px">
-        <button class="btn btn-secondary" onclick="loadHealth()">↺ Refresh</button>
-      </div>
-      <div class="error-card" id="health-error"></div>
-      <div id="health-content"></div>
-    </div>
+        if (!claim || !aiResponse) {
+          showError(
+            "evaluate-error",
+            "Please fill in both Claim and AI Response.",
+          );
+          return;
+        }
+        clearError("evaluate-error");
+        document.getElementById("results-panel").classList.add("hidden");
 
-  </main>
-</div>
+        const btn = document.getElementById("run-btn");
+        btn.disabled = true;
+        btn.innerHTML =
+          '<span class="spinner"></span> Evaluating…';
 
-<script>
-const API_BASE = window.location.origin;
+        try {
+          const data = await apiFetch("POST", "/evaluate", {
+            claim,
+            ai_response: aiResponse,
+            user_flagged: userFlagged,
+          });
+          renderResults(data);
+        } catch (e) {
+          showError("evaluate-error", e.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "▶ Run Pipeline";
+        }
+      }
 
-// ─────────────────────────────────────
-// Navigation
-// ─────────────────────────────────────
-function navigate(view) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + view).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelector('[data-view="' + view + '"]').classList.add('active');
-  if (view === 'knowledge') loadKnowledge();
-  if (view === 'cases')     loadCases();
-  if (view === 'health')    loadHealth();
-}
+      function verdictBadge(v) {
+        if (v === true)
+          return '<span class="badge badge-success">✓ True</span>';
+        if (v === false)
+          return '<span class="badge badge-danger">✗ False</span>';
+        return '<span class="badge badge-warning">? Uncertain</span>';
+      }
 
-// ─────────────────────────────────────
-// API helper
-// ─────────────────────────────────────
-async function apiFetch(method, path, body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' } };
-  if (body !== undefined) opts.body = JSON.stringify(body);
-  const res = await fetch(API_BASE + path, opts);
-  const text = await res.text();
-  if (!res.ok) {
-    let detail = text;
-    try { detail = JSON.parse(text).detail || text; } catch (_) {}
-    throw new Error('HTTP ' + res.status + ': ' + detail);
-  }
-  return JSON.parse(text);
-}
+      function renderResults(data) {
+        const scoringMeta = {
+          "tavily+groq": ["🔍 Tavily+Groq", "badge-info"],
+          error_tavily: ["⚠ Tavily Error", "badge-danger"],
+          error_groq: ["⚠ Groq Error", "badge-danger"],
+        };
+        const [smLabel, smCls] = scoringMeta[data.scoring_method] || [
+          "—",
+          "badge-neutral",
+        ];
 
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = '⚠ ' + msg;
-  el.classList.add('show');
-}
-function clearError(id) {
-  const el = document.getElementById(id);
-  el.textContent = '';
-  el.classList.remove('show');
-}
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+        document.getElementById("stat-verdict").innerHTML = verdictBadge(data.verdict);
+        document.getElementById("stat-scoring-inline").innerHTML =
+          `<span class="badge ${smCls}" style="font-size:10px">${smLabel}</span>`;
 
-// ─────────────────────────────────────
-// EVALUATE
-// ─────────────────────────────────────
-async function runPipeline() {
-  const claim      = document.getElementById('claim-input').value.trim();
-  const aiResponse = document.getElementById('response-input').value.trim();
-  const userFlagged = document.getElementById('flagged-input').checked;
+        const pct = Math.round((data.confidence || 0) * 100);
+        document.getElementById("stat-confidence").textContent = pct + "%";
+        const barColor =
+          pct >= 60 ? "#12A150" : pct >= 30 ? "#F76808" : "#E5484D";
+        const bar = document.getElementById("confidence-bar");
+        bar.style.width = pct + "%";
+        bar.style.background = barColor;
 
-  if (!claim || !aiResponse) {
-    showError('evaluate-error', 'Please fill in both Claim and AI Response.');
-    return;
-  }
-  clearError('evaluate-error');
-  document.getElementById('results-panel').classList.add('hidden');
+        document.getElementById("stat-triggered").innerHTML = data.triggered
+          ? '<span class="badge badge-warning">Yes</span>'
+          : '<span class="badge badge-neutral">No</span>';
 
-  const btn = document.getElementById('run-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Evaluating… (NLI loads in ~30s on first run)';
+        const reasonLabels = {
+          user_flagged: "User flagged",
+          critic_disagreement: "Critic disagreement",
+          low_confidence: "Low confidence",
+          hedged_response: "Hedged response",
+        };
+        document.getElementById("stat-reason").textContent =
+          reasonLabels[data.reason] || data.reason || "—";
 
-  try {
-    const data = await apiFetch('POST', '/evaluate', {
-      claim, ai_response: aiResponse, user_flagged: userFlagged,
-    });
-    renderResults(data);
-  } catch (e) {
-    showError('evaluate-error', e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '▶ Run Pipeline';
-  }
-}
+        document.getElementById("stat-scoring").innerHTML =
+          `<span class="badge ${smCls}">${smLabel}</span>`;
 
-function verdictBadge(v) {
-  if (v === true)  return '<span class="badge badge-success">✓ True</span>';
-  if (v === false) return '<span class="badge badge-danger">✗ False</span>';
-  return '<span class="badge badge-warning">? Uncertain</span>';
-}
+        const corrSection = document.getElementById("correction-section");
+        if (data.correction) {
+          document.getElementById("correction-text").textContent = data.correction;
+          corrSection.classList.remove("hidden");
+        } else {
+          corrSection.classList.add("hidden");
+        }
 
-function nliBar(score) {
-  const pct   = Math.abs(score) * 50;
-  const color = score >= 0 ? '#12A150' : '#E5484D';
-  const left  = score >= 0 ? '50%' : (50 - pct) + '%';
-  const label = (score >= 0 ? '+' : '') + score.toFixed(3);
-  return `
-    <div class="nli-bar-wrap">
-      <div class="nli-bar-center"></div>
-      <div class="nli-bar-fill" style="left:${left}; width:${pct}%; background:${color}"></div>
-    </div>
-    <div class="nli-bar-labels">
-      <span>contradicts</span>
-      <span class="nli-score-val" style="color:${color}">${esc(label)}</span>
-      <span>supports</span>
-    </div>`;
-}
+        const tavilySection = document.getElementById("tavily-answer-section");
+        if (data.tavily_answer) {
+          document.getElementById("tavily-answer-text").textContent = data.tavily_answer;
+          tavilySection.classList.remove("hidden");
+        } else {
+          tavilySection.classList.add("hidden");
+        }
 
-function renderResults(data) {
-  document.getElementById('stat-verdict').innerHTML = verdictBadge(data.verdict);
-
-  const pct = Math.round((data.confidence || 0) * 100);
-  document.getElementById('stat-confidence').textContent = pct + '%';
-  const barColor = pct >= 60 ? '#12A150' : pct >= 30 ? '#F76808' : '#E5484D';
-  const bar = document.getElementById('confidence-bar');
-  bar.style.width   = pct + '%';
-  bar.style.background = barColor;
-
-  document.getElementById('stat-triggered').innerHTML = data.triggered
-    ? '<span class="badge badge-warning">Yes</span>'
-    : '<span class="badge badge-neutral">No</span>';
-
-  document.getElementById('stat-reason').textContent = data.reason || '—';
-
-  const corrSection = document.getElementById('correction-section');
-  if (data.correction) {
-    document.getElementById('correction-text').textContent = data.correction;
-    corrSection.classList.remove('hidden');
-  } else {
-    corrSection.classList.add('hidden');
-  }
-
-  // Build NLI score lookup by url+snippet key
-  const nliMap = {};
-  (data.nli_scores || []).forEach(s => { nliMap[s.url + s.snippet] = s.nli_score; });
-
-  const list = document.getElementById('sources-list');
-  const sources = data.sources || [];
-  if (!sources.length) {
-    list.innerHTML = '<p class="text-muted" style="font-size:13px">No sources found.</p>';
-  } else {
-    list.innerHTML = sources.map(s => {
-      const score = nliMap[s.url + s.snippet];
-      const nliHtml = score !== undefined
-        ? '<div class="source-nli">' + nliBar(score) + '</div>'
-        : '';
-      return `
+        const list = document.getElementById("sources-list");
+        const sources = data.sources || [];
+        if (!sources.length) {
+          list.innerHTML =
+            '<p class="text-muted" style="font-size:13px">No sources found.</p>';
+        } else {
+          list.innerHTML = sources
+            .map(
+              (s) => `
         <div class="source-item">
-          <div class="source-url">🔗 ${esc(s.url || '(no url)')}</div>
+          <div class="source-url">🔗 ${esc(s.url || "(no url)")}</div>
           <div class="source-snippet">${esc(s.snippet)}</div>
-          ${nliHtml}
-        </div>`;
-    }).join('');
-  }
+        </div>`,
+            )
+            .join("");
+        }
 
-  document.getElementById('results-panel').classList.remove('hidden');
-}
+        document.getElementById("results-panel").classList.remove("hidden");
+      }
 
-// ─────────────────────────────────────
-// KNOWLEDGE BASE
-// ─────────────────────────────────────
-async function loadKnowledge() {
-  clearError('knowledge-error');
-  const container = document.getElementById('knowledge-content');
-  container.innerHTML = `
+      // ─────────────────────────────────────
+      // KNOWLEDGE BASE
+      // ─────────────────────────────────────
+      async function loadKnowledge() {
+        clearError("knowledge-error");
+        const container = document.getElementById("knowledge-content");
+        container.innerHTML = `
     <div class="empty-state">
       <span class="spinner spinner-dark"></span>
       <p style="margin-top:12px">Loading…</p>
     </div>`;
 
-  try {
-    const entries = await apiFetch('GET', '/knowledge');
-    if (!entries.length) {
-      container.innerHTML = `
+        try {
+          const entries = await apiFetch("GET", "/knowledge");
+          if (!entries.length) {
+            container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">📭</div>
           <h3>No entries yet</h3>
           <p>Corrections appear here after the pipeline flags and stores a false claim.</p>
         </div>`;
-      return;
-    }
-    container.innerHTML = `
+            return;
+          }
+          container.innerHTML = `
       <div class="table-wrap">
         <table>
           <thead>
@@ -765,113 +1223,138 @@ async function loadKnowledge() {
             </tr>
           </thead>
           <tbody>
-            ${entries.map(e => {
-              const corr = (e.correction || '');
-              const truncCorr = corr.length > 80 ? corr.slice(0, 80) + '…' : corr;
-              const ts = e.timestamp ? new Date(e.timestamp).toLocaleString() : '—';
-              const pct = Math.round((e.confidence || 0) * 100);
-              return `<tr>
+            ${entries
+              .map((e) => {
+                const corr = e.correction || "";
+                const truncCorr =
+                  corr.length > 80 ? corr.slice(0, 80) + "…" : corr;
+                const ts = e.timestamp
+                  ? new Date(e.timestamp).toLocaleString()
+                  : "—";
+                const pct = Math.round((e.confidence || 0) * 100);
+                return `<tr>
                 <td style="max-width:220px">${esc(e.claim)}</td>
                 <td style="max-width:260px; color:#6F6F6F">${esc(truncCorr)}</td>
                 <td><span class="badge badge-info">${pct}%</span></td>
                 <td style="font-size:12px; color:#9B9BAD; white-space:nowrap">${esc(ts)}</td>
               </tr>`;
-            }).join('')}
+              })
+              .join("")}
           </tbody>
         </table>
       </div>`;
-  } catch (e) {
-    showError('knowledge-error', e.message);
-    container.innerHTML = '';
-  }
-}
+        } catch (e) {
+          showError("knowledge-error", e.message);
+          container.innerHTML = "";
+        }
+      }
 
-// ─────────────────────────────────────
-// CASES
-// ─────────────────────────────────────
-async function loadCases() {
-  clearError('cases-error');
-  const container = document.getElementById('cases-list');
-  container.innerHTML = '<p style="color:#9B9BAD; font-size:13px">Loading…</p>';
-  try {
-    const cases = await apiFetch('GET', '/cases');
-    if (!cases.length) {
-      container.innerHTML = `
+      // ─────────────────────────────────────
+      // CASES
+      // ─────────────────────────────────────
+      async function loadCases() {
+        clearError("cases-error");
+        const container = document.getElementById("cases-list");
+        container.innerHTML =
+          '<p style="color:#9B9BAD; font-size:13px">Loading…</p>';
+        try {
+          const cases = await apiFetch("GET", "/cases");
+          if (!cases.length) {
+            container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">📋</div>
           <h3>No cases open</h3>
           <p>Open a case using the form above.</p>
         </div>`;
-      return;
-    }
-    container.innerHTML = cases.map(c => {
-      const isOpen = c.status === 'open';
-      const openedAt = c.opened_at ? new Date(c.opened_at).toLocaleString() : '—';
-      const closedAt = c.closed_at ? new Date(c.closed_at).toLocaleString() : null;
-      return `
+            return;
+          }
+          container.innerHTML = cases
+            .map((c) => {
+              const isOpen = c.status === "open";
+              const openedAt = c.opened_at
+                ? new Date(c.opened_at).toLocaleString()
+                : "—";
+              const closedAt = c.closed_at
+                ? new Date(c.closed_at).toLocaleString()
+                : null;
+              return `
         <div class="case-card">
           <div class="case-card-header">
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-              <span class="badge ${isOpen ? 'badge-warning' : 'badge-neutral'}">${esc(c.status)}</span>
+              <span class="badge ${isOpen ? "badge-warning" : "badge-neutral"}">${esc(c.status)}</span>
               <span class="case-id-text">${esc(c.case_id)}</span>
             </div>
             <span style="font-size:12px; color:#9B9BAD">${esc(openedAt)}</span>
           </div>
-          ${c.reason ? `<div style="margin-top:5px; font-size:12px; color:#6F6F6F">Reason: <strong>${esc(c.reason || (c.trigger_data && c.trigger_data.reason) || '—')}</strong></div>` : ''}
-          ${c.resolution ? `<div style="margin-top:4px; font-size:12px; color:#6F6F6F">Resolution: <strong>${esc(c.resolution)}</strong>${closedAt ? ' · ' + esc(closedAt) : ''}</div>` : ''}
+          ${c.reason ? `<div style="margin-top:5px; font-size:12px; color:#6F6F6F">Reason: <strong>${esc(c.reason || (c.trigger_data && c.trigger_data.reason) || "—")}</strong></div>` : ""}
+          ${c.resolution ? `<div style="margin-top:4px; font-size:12px; color:#6F6F6F">Resolution: <strong>${esc(c.resolution)}</strong>${closedAt ? " · " + esc(closedAt) : ""}</div>` : ""}
         </div>`;
-    }).join('');
-  } catch (e) {
-    showError('cases-error', e.message);
-    container.innerHTML = '';
-  }
-}
+            })
+            .join("");
+        } catch (e) {
+          showError("cases-error", e.message);
+          container.innerHTML = "";
+        }
+      }
 
-async function openCase() {
-  clearError('open-case-error');
-  const raw = document.getElementById('case-trigger-input').value.trim();
-  let triggerData;
-  try { triggerData = JSON.parse(raw || '{}'); }
-  catch (_) { showError('open-case-error', 'Invalid JSON in trigger data.'); return; }
-  try {
-    await apiFetch('POST', '/case/open', { trigger_data: triggerData });
-    document.getElementById('case-trigger-input').value = '';
-    await loadCases();
-  } catch (e) {
-    showError('open-case-error', e.message);
-  }
-}
+      async function openCase() {
+        clearError("open-case-error");
+        const raw = document.getElementById("case-trigger-input").value.trim();
+        let triggerData;
+        try {
+          triggerData = JSON.parse(raw || "{}");
+        } catch (_) {
+          showError("open-case-error", "Invalid JSON in trigger data.");
+          return;
+        }
+        try {
+          await apiFetch("POST", "/case/open", { trigger_data: triggerData });
+          document.getElementById("case-trigger-input").value = "";
+          await loadCases();
+        } catch (e) {
+          showError("open-case-error", e.message);
+        }
+      }
 
-async function closeCase() {
-  clearError('close-case-error');
-  const caseId     = document.getElementById('close-case-id').value.trim();
-  const resolution = document.getElementById('close-resolution').value.trim();
-  if (!caseId || !resolution) {
-    showError('close-case-error', 'Case ID and resolution are both required.');
-    return;
-  }
-  try {
-    await apiFetch('POST', '/case/close', { case_id: caseId, resolution });
-    document.getElementById('close-case-id').value = '';
-    document.getElementById('close-resolution').value = '';
-    await loadCases();
-  } catch (e) {
-    showError('close-case-error', e.message);
-  }
-}
+      async function closeCase() {
+        clearError("close-case-error");
+        const caseId = document.getElementById("close-case-id").value.trim();
+        const resolution = document
+          .getElementById("close-resolution")
+          .value.trim();
+        if (!caseId || !resolution) {
+          showError(
+            "close-case-error",
+            "Case ID and resolution are both required.",
+          );
+          return;
+        }
+        try {
+          await apiFetch("POST", "/case/close", {
+            case_id: caseId,
+            resolution,
+          });
+          document.getElementById("close-case-id").value = "";
+          document.getElementById("close-resolution").value = "";
+          await loadCases();
+        } catch (e) {
+          showError("close-case-error", e.message);
+        }
+      }
 
-// ─────────────────────────────────────
-// HEALTH
-// ─────────────────────────────────────
-async function loadHealth() {
-  clearError('health-error');
-  const container = document.getElementById('health-content');
-  container.innerHTML = '<p style="color:#9B9BAD; font-size:13px">Checking…</p>';
-  try {
-    const data = await apiFetch('GET', '/health');
-    const ok = data.status === 'ok';
-    const dotColor = ok ? '#12A150' : '#E5484D';
-    container.innerHTML = `
+      // ─────────────────────────────────────
+      // HEALTH
+      // ─────────────────────────────────────
+      async function loadHealth() {
+        clearError("health-error");
+        const container = document.getElementById("health-content");
+        container.innerHTML =
+          '<p style="color:#9B9BAD; font-size:13px">Checking…</p>';
+        try {
+          const data = await apiFetch("GET", "/health");
+          const ok = data.status === "ok";
+          const dotColor = ok ? "#12A150" : "#E5484D";
+          container.innerHTML = `
       <div class="stats-row" style="grid-template-columns: repeat(3, 1fr); max-width:640px">
         <div class="stat-card">
           <div class="stat-label">Status</div>
@@ -889,14 +1372,133 @@ async function loadHealth() {
           <div style="font-size:12.5px; color:#444; margin-top:10px">${new Date().toLocaleString()}</div>
         </div>
       </div>`;
-  } catch (e) {
-    showError('health-error', e.message);
-    container.innerHTML = '';
-  }
-}
+        } catch (e) {
+          showError("health-error", e.message);
+          container.innerHTML = "";
+        }
+      }
 
-// Init
-navigate('evaluate');
-</script>
-</body>
+      // ─────────────────────────────────────
+      // SETTINGS
+      // ─────────────────────────────────────
+      async function loadSettings() {
+        clearError("settings-error");
+        clearError("tavily-settings-error");
+        try {
+          const data = await apiFetch("GET", "/settings");
+          renderKeyStatus(data.groq_key_set);
+          renderTavilyStatus(data.tavily_key_set);
+        } catch (_) {}
+      }
+
+      function renderKeyStatus(isSet) {
+        document.getElementById("groq-key-status").innerHTML = isSet
+          ? '<span class="badge badge-success">✓ Groq key configured — LLM judgment active</span>'
+          : '<span class="badge badge-warning">No key — pipeline returns error_groq</span>';
+      }
+
+      function renderTavilyStatus(isSet) {
+        document.getElementById("tavily-key-status").innerHTML = isSet
+          ? '<span class="badge badge-success">✓ Tavily key configured — web search active</span>'
+          : '<span class="badge badge-warning">No key — pipeline returns error_tavily</span>';
+      }
+
+      function toggleKeyVis() {
+        const input = document.getElementById("groq-key-input");
+        const btn = document.getElementById("toggle-key-btn");
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.textContent = show ? "Hide" : "Show";
+      }
+
+      function toggleTavilyKeyVis() {
+        const input = document.getElementById("tavily-key-input");
+        const btn = document.getElementById("toggle-tavily-btn");
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.textContent = show ? "Hide" : "Show";
+      }
+
+      async function saveGroqKey() {
+        clearError("settings-error");
+        const key = document.getElementById("groq-key-input").value.trim();
+        if (!key) {
+          showError("settings-error", "Please enter an API key.");
+          return;
+        }
+        try {
+          const data = await apiFetch("POST", "/settings", {
+            groq_api_key: key,
+          });
+          document.getElementById("groq-key-input").value = "";
+          document.getElementById("groq-key-input").type = "password";
+          document.getElementById("toggle-key-btn").textContent = "Show";
+          renderKeyStatus(data.groq_key_set);
+          flash("settings-saved");
+        } catch (e) {
+          showError("settings-error", e.message);
+        }
+      }
+
+      async function clearGroqKey() {
+        clearError("settings-error");
+        try {
+          const data = await apiFetch("POST", "/settings", {
+            groq_api_key: "",
+          });
+          document.getElementById("groq-key-input").value = "";
+          renderKeyStatus(data.groq_key_set);
+          flash("settings-cleared");
+        } catch (e) {
+          showError("settings-error", e.message);
+        }
+      }
+
+      async function saveTavilyKey() {
+        clearError("tavily-settings-error");
+        const key = document.getElementById("tavily-key-input").value.trim();
+        if (!key) {
+          showError("tavily-settings-error", "Please enter an API key.");
+          return;
+        }
+        try {
+          const data = await apiFetch("POST", "/settings", {
+            tavily_api_key: key,
+          });
+          document.getElementById("tavily-key-input").value = "";
+          document.getElementById("tavily-key-input").type = "password";
+          document.getElementById("toggle-tavily-btn").textContent = "Show";
+          renderTavilyStatus(data.tavily_key_set);
+          flash("tavily-settings-saved");
+        } catch (e) {
+          showError("tavily-settings-error", e.message);
+        }
+      }
+
+      async function clearTavilyKey() {
+        clearError("tavily-settings-error");
+        try {
+          const data = await apiFetch("POST", "/settings", {
+            tavily_api_key: "",
+          });
+          document.getElementById("tavily-key-input").value = "";
+          renderTavilyStatus(data.tavily_key_set);
+          flash("tavily-settings-cleared");
+        } catch (e) {
+          showError("tavily-settings-error", e.message);
+        }
+      }
+
+      function flash(id) {
+        const el = document.getElementById(id);
+        el.style.display = "inline";
+        setTimeout(() => {
+          el.style.display = "none";
+        }, 2800);
+      }
+
+      // Init
+      navigate("evaluate");
+    </script>
+  </body>
 </html>
